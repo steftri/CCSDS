@@ -12,7 +12,7 @@
 #ifndef _PUS_TIME_H_
 #define _PUS_TIME_H_
 
-#include <cstdio>
+#include <stdio.h>
 
 /****************************************************************/
 /* PUS TC Packet according to                                   */

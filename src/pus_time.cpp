@@ -5,16 +5,10 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2023 Stefan Trippler.  All rights reserved.
  */
 
-
-#ifdef AVR
-#include <Arduino.h>
-#else
-#include <cstdint>
-#include <cstring>
-#endif
+#include <inttypes.h>
 
 #include "pus_time.h"
 
@@ -41,12 +35,6 @@ namespace PUS
   
   uint32_t Time::get(uint32_t *pu32_Sec, uint32_t *pu32_SubSec)
   {
-    uint32_t u32_Sec;
-    uint32_t u32_SubSec;
-    
-    u32_Sec=mu32_Sec;
-    u32_SubSec=mu32_SubSec;
-    
     if(pu32_Sec)
       *pu32_Sec = mu32_Sec;
     if(pu32_SubSec)

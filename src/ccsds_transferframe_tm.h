@@ -123,7 +123,7 @@ namespace CCSDS
     TTmCallback *mp_TmCallback;
     
   public:
-    TransferframeTm(void *p_TmContext = NULL, TTmCallback *mp_TmCallback = NULL);
+    TransferframeTm(void *p_TmContext = nullptr, TTmCallback *mp_TmCallback = nullptr);
     
     void setCallback(void *p_TmContext, TTmCallback *mp_TmCallback);
     

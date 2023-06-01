@@ -125,7 +125,7 @@ namespace CCSDS
     
     
   public:
-    SpacePacket(void *p_SpContext = NULL, TSpCallback *mp_SpCallback = NULL);
+    SpacePacket(void *p_SpContext = nullptr, TSpCallback *mp_SpCallback = nullptr);
     
     void setCallback(void *p_SpContext, TSpCallback *mp_SpCallback);
     

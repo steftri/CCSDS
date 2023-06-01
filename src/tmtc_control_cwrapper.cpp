@@ -8,14 +8,7 @@
  * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
  */
 
-
-#ifdef AVR
-#include <Arduino.h>
-#else
-#include <cstdint>
-#include <cstring>
-#endif
-
+#include <inttypes.h>
 
 #include "tmtc_control.h"
 #include "tmtc_control_cwrapper.h"

@@ -53,8 +53,8 @@ namespace CCSDS
     TReceiveCallback *mp_ReceiveCallback;
     
   public:
-    Cltu(void *p_StartOfTransmissionContext = NULL, TStartOfTransmissionCallback *p_StartOfTransmissionCallback = NULL,
-         void *p_ReceiveContext = NULL, TReceiveCallback *p_ReceiveCallback = NULL);
+    Cltu(void *p_StartOfTransmissionContext = nullptr, TStartOfTransmissionCallback *p_StartOfTransmissionCallback = nullptr,
+         void *p_ReceiveContext = nullptr, TReceiveCallback *p_ReceiveCallback = nullptr);
     
     void setCallbacks(void *p_StartOfTransmissionContext, TStartOfTransmissionCallback *p_StartOfTransmissionCallback,
                       void *p_ReceiveContext, TReceiveCallback *p_ReceiveCallback);

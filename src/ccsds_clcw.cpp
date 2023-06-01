@@ -10,12 +10,7 @@
  */
 
 
-#ifdef AVR
-#include <Arduino.h>
-#else
-#include <cstdint>
-#include <cstring>
-#endif
+#include <inttypes.h>
 
 #include "ccsds_clcw.h"
 

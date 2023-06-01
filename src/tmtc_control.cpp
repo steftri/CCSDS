@@ -8,13 +8,8 @@
  * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
  */
 
-
-#ifdef AVR
-#include <Arduino.h>
-#else
-#include <cstdint>
-#include <cstring>
-#endif
+#include <inttypes.h>
+#include <string.h>
 
 
 //
@@ -49,15 +44,15 @@ TmTcControl::TmTcControl(const uint16_t *pu16_SCIDs, const uint8_t u8_NumberOfSC
   
   if(MaxTmChannels>0)
   {
-    ma_TmCOP[0].p_TfTmOcfContext = NULL;
-    ma_TmCOP[0].p_TfTmOcfCallback = NULL;
+    ma_TmCOP[0].p_TfTmOcfContext = nullptr;
+    ma_TmCOP[0].p_TfTmOcfCallback = nullptr;
     ma_Sp[0].setCallback(p_VC0SpContext, p_VC0SpCallback);
   }
   for(uint8_t i=1; i<MaxTmChannels; i++)
   {
-    ma_TmCOP[i].p_TfTmOcfContext = NULL;
-    ma_TmCOP[i].p_TfTmOcfCallback = NULL;
-    ma_Sp[i].setCallback(NULL, NULL);
+    ma_TmCOP[i].p_TfTmOcfContext = nullptr;
+    ma_TmCOP[i].p_TfTmOcfCallback = nullptr;
+    ma_Sp[i].setCallback(nullptr, nullptr);
   }
   
   for(uint8_t i=0; i<MaxTcChannels; i++)
@@ -229,7 +224,7 @@ void TmTcControl::_TfTmCallback(const uint16_t u16_SpacecraftID, const uint8_t u
   
   if(u8_VirtualChannelID<MaxTcChannels)
   {
-    Clcw::extract(NULL, NULL, &ma_COP[u8_VirtualChannelID].b_NoRfAvail, &ma_COP[u8_VirtualChannelID].b_NoBitLock, 
+    Clcw::extract(nullptr, nullptr, &ma_COP[u8_VirtualChannelID].b_NoRfAvail, &ma_COP[u8_VirtualChannelID].b_NoBitLock, 
                   &ma_COP[u8_VirtualChannelID].b_LockOut, &ma_COP[u8_VirtualChannelID].b_Wait, &ma_COP[u8_VirtualChannelID].b_Retransmit,
                   &ma_COP[u8_VirtualChannelID].u8_FarmBCounter, &ma_COP[u8_VirtualChannelID].u8_NextFrameSeqNumber, u32_OCF);
   }
@@ -252,7 +247,7 @@ void TmTcControl::_TfTmCallback(const uint16_t u16_SpacecraftID, const uint8_t u
   
   if(u8_VirtualChannelID<MaxTmChannels)
   {
-    if(ma_TmCOP[u8_VirtualChannelID].p_TfTmOcfCallback!=NULL)
+    if(ma_TmCOP[u8_VirtualChannelID].p_TfTmOcfCallback!=nullptr)
       ma_TmCOP[u8_VirtualChannelID].p_TfTmOcfCallback(u8_VirtualChannelID, ma_TmCOP[u8_VirtualChannelID].p_TfTmOcfContext, u32_OCF);
     ma_Sp[u8_VirtualChannelID].process(pu8_Data, u16_DataSize);
   }

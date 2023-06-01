@@ -119,9 +119,9 @@ private:
   
   
 public:
-  TmTcControl(const uint16_t *pu16_SCIDs = NULL, const uint8_t u8_NumberOfSCIDs = 0,
-              void *p_TfTcContext = NULL, TTfTcCallback *p_TfTcCallback = NULL,
-              void *p_VC0SpContext = NULL, SpacePacket::TSpCallback *p_VC0SpCallback = NULL);
+  TmTcControl(const uint16_t *pu16_SCIDs = nullptr, const uint8_t u8_NumberOfSCIDs = 0,
+              void *p_TfTcContext = nullptr, TTfTcCallback *p_TfTcCallback = nullptr,
+              void *p_VC0SpContext = nullptr, SpacePacket::TSpCallback *p_VC0SpCallback = nullptr);
   
   int32_t setSCIDs(const uint16_t *pu16_SCIDs, const uint8_t u8_NumberOfSCIDs);
   

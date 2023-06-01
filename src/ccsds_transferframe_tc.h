@@ -112,7 +112,7 @@ namespace CCSDS
     TTcCallback *mp_TcCallback;
     
   public:
-    TransferframeTc(void *p_TcContext = NULL, TTcCallback *mp_TcCallback = NULL);
+    TransferframeTc(void *p_TcContext = nullptr, TTcCallback *mp_TcCallback = nullptr);
     
     void setCallback(void *p_TcContext, TTcCallback *mp_TcCallback);
     

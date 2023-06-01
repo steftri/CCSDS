@@ -8,13 +8,8 @@
  * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
  */
 
-
-#ifdef AVR
-#include <Arduino.h>
-#else
-#include <cstdint>
-#include <cstring>
-#endif
+#include <inttypes.h>
+#include <string.h>
 
 #include "ccsds_spacepacket.h"
 
@@ -83,7 +78,7 @@ namespace CCSDS
                                const uint8_t *pu8_PacketData, const uint16_t u16_PacketDataLength)
   {
     return create(pu8_Buffer, u32_BufferSize, e_PacketType, e_SequenceFlags, u16_APID, u16_SequenceCount,
-                  NULL, 0, pu8_PacketData, u16_PacketDataLength);
+                  nullptr, 0, pu8_PacketData, u16_PacketDataLength);
   }
   
   
