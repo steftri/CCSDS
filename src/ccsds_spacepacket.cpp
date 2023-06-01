@@ -8,7 +8,6 @@
  * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
  */
 
-#include <inttypes.h>
 #include <string.h>
 
 #include "ccsds_spacepacket.h"
@@ -212,7 +211,7 @@ namespace CCSDS
    * @param u32_BufferSize  The size of the data buffer
    *
    * @retval  0   If the buffer was parsed
-   * @retval -1   If fhe u32_BufferSize is 0 or the pu8_Buffer is NULL
+   * @retval -1   If fhe u32_BufferSize is 0 or the pu8_Buffer is nullptr
    */
   int32_t SpacePacket::process(const uint8_t *pu8_Buffer, const uint32_t u32_BufferSize)
   {
@@ -261,7 +260,7 @@ namespace CCSDS
       mu32_Index++;
       if((mu32_Index>=SP_HEADER_SIZE) && (mu32_Index>=(SP_HEADER_SIZE+mu16_PacketDataLength+1UL)))
       {
-        if(NULL!=mp_SpCallback)
+        if(nullptr!=mp_SpCallback)
           mp_SpCallback(mp_SpContext, me_PacketType, me_SequenceFlags, mu16_APID, mu16_PacketSequenceCount, mb_SecHdrFlag, au8_PacketData, mu16_PacketDataLength+1);
         mu32_Index = 0;
         mb_Overflow = false;

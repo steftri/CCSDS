@@ -23,6 +23,8 @@
 /*                                                              */
 /****************************************************************/
 
+#include <inttypes.h>
+
 #include "configCCSDS.h"
 
 #ifdef configSP_MAX_DATA_SIZE

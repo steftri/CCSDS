@@ -19,6 +19,7 @@
 /*                                                              */
 /****************************************************************/
 
+#include <inttypes.h>
 
 namespace PUS 
 {
@@ -79,7 +80,7 @@ namespace PUS
     
     
   public:
-    tc(void *p_Context = NULL, TPusTcCallback *p_PusTcCallback = NULL);
+    tc(void *p_Context = nullptr, TPusTcCallback *p_PusTcCallback = nullptr);
     
     static uint32_t create(uint8_t *pu8_SecHdrBuffer, const uint32_t u32_SecHdrSize,
                            uint8_t *pu8_PacketDataBuffer, const uint32_t u32_PacketDataSize,

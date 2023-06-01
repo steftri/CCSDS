@@ -8,7 +8,6 @@
  * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
  */
 
-#include <inttypes.h>
 #include <string.h>
 
 #include "pus_tc.h"
@@ -93,7 +92,7 @@ namespace PUS
    * @param u32_BufferSize  The size of the data buffer
    *
    * @retval  0   If the buffer was extracted successfully
-   * @retval -1   If fhe u32_BufferSize is 0 or the pu8_Buffer is NULL
+   * @retval -1   If fhe u32_BufferSize is 0 or the pu8_Buffer is nullptr
    */
   int32_t tc::process(const uint8_t *pu8_Buffer, const uint32_t u32_BufferSize)
   {
@@ -118,7 +117,7 @@ namespace PUS
     u8_SourceID = pu8_Buffer[3];
     //u16_Spare = ((uint16_t)pu8_Buffer[4]<<8) | (uint16_t)pu8_Buffer[5];
     
-    if(NULL!=mp_PusTcCallback)
+    if(nullptr!=mp_PusTcCallback)
       mp_PusTcCallback(mp_Context, b_AckAcc, b_AckStart, b_AckProg, b_AckComp,
                        u8_Service, u8_SubService, u8_SourceID,
                        &pu8_Buffer[TC_SEC_HEADER_SIZE], u32_BufferSize-TC_SEC_HEADER_SIZE);
