@@ -8,16 +8,7 @@
  * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
  */
 
-#include <inttypes.h>
 #include <string.h>
-
-
-//
-//  tmtc_control.cpp
-//  CCSDS
-//
-//  Created by Stefan on 2021-03-10.
-//
 
 #include "tmtc_control.h"
 

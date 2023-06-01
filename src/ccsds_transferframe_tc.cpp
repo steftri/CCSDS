@@ -1,4 +1,13 @@
-#include <inttypes.h>
+/**
+ * @file      ccsds_transferframe_tc.cpp
+ *
+ * @brief     Source file of the Transfer Frame (TC) class
+ *
+ * @author    Stefan Trippler
+ *
+ * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
+ */
+
 #include <string.h>
 
 #include "ccsds_transferframe_tc.h"

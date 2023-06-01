@@ -8,7 +8,7 @@
  * @copyright Copyright (C) 2021-2023 Stefan Trippler.  All rights reserved.
  */
 
-#include <inttypes.h>
+#include <stdio.h>
 
 #include "pus_time.h"
 
@@ -109,7 +109,7 @@ namespace PUS
     uint32_t u32_Sec;
     uint32_t u32_SubSec;
     
-    if((NULL==pu8_TimeCucBuffer) || (u8_BufferSize<2))
+    if((nullptr==pu8_TimeCucBuffer) || (u8_BufferSize<2))
       return;
     
     if(0x20!=(pu8_TimeCucBuffer[0]&0xF0))  // first nibble must be 0x20
@@ -142,7 +142,7 @@ namespace PUS
     uint32_t u32_Sec;
     uint32_t u32_SubSec;
     
-    if((NULL==pu8_TimeCucBuffer) || (u8_BufferSize<2))
+    if((nullptr==pu8_TimeCucBuffer) || (u8_BufferSize<2))
       return;
     
     if(0x20!=((uint8_t)e_TimeCucFormat&0xF0))  // first nibble must be 0x20
@@ -188,7 +188,7 @@ namespace PUS
     const uint32_t DAYS_PER_4_YEARS   =   1461ul; /*   4*365 +   1 */
     const uint32_t DAYS_PER_100_YEARS =  36524ul; /* 100*365 +  25 - 1 */
     const uint32_t DAYS_PER_400_YEARS = 146097ul; /* 400*365 + 100 - 4 + 1 */
-    const uint32_t DAY_AD_1970_01_01  = 719468ul; /* Tagnummer bezogen auf den 1. Maerz des Jahres "Null" */
+    const uint32_t DAY_AD_1970_01_01  = 719468ul; /* Tagnummer bezogen auf den 1. Maerz des Jahres "nullptr" */
     
     uint32_t u32_DaysAD;
     uint32_t u32_SecOfDay;
@@ -323,7 +323,7 @@ namespace PUS
     uint8_t u8_Month, u8_Day;
     uint8_t u8_Hour, u8_Min, u8_Sec;
     
-    if((NULL==pc_Buffer) || (0==u8_BufferSize))
+    if((nullptr==pc_Buffer) || (0==u8_BufferSize))
       return -1;
     
     time2Gregorian(&u16_Year, &u8_Month, &u8_Day, &u8_Hour, &u8_Min, &u8_Sec, u32_TimeInSec, s16_TimeZoneMin);

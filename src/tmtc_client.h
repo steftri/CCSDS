@@ -12,6 +12,7 @@
 #ifndef _TMTC_CLIENT_H_
 #define _TMTC_CLIENT_H_
 
+#include <inttypes.h>
 
 #include "configCCSDS.h"
 

@@ -12,6 +12,9 @@
 #ifndef _CCSDS_CLCW_H_
 #define _CCSDS_CLCW_H_
 
+#include <inttypes.h>
+
+
 namespace CCSDS
 {
   

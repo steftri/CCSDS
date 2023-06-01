@@ -8,8 +8,6 @@
  * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
  */
 
-#include <inttypes.h>
-
 #include "tmtc_control.h"
 #include "tmtc_control_cwrapper.h"
 

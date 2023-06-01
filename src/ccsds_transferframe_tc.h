@@ -8,7 +8,6 @@
  * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
  */
 
-
 #ifndef _CCSDS_TRANSFERFRAME_TC_H_
 #define _CCSDS_TRANSFERFRAME_TC_H_
 
@@ -26,6 +25,8 @@
 /*    by the create() method.                                   */
 /*                                                              */
 /****************************************************************/
+
+#include <inttypes.h>
 
 #include "configCCSDS.h"
 

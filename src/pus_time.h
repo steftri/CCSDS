@@ -12,8 +12,6 @@
 #ifndef _PUS_TIME_H_
 #define _PUS_TIME_H_
 
-#include <stdio.h>
-
 /****************************************************************/
 /* PUS TC Packet according to                                   */
 /*                                                              */
@@ -22,6 +20,8 @@
 /*  Time base is TAI.                                           */
 /*                                                              */
 /****************************************************************/
+
+#include <inttypes.h>
 
 
 namespace PUS
@@ -39,7 +39,7 @@ namespace PUS
     Time(const uint32_t u32_Sec = 0, const uint32_t u32_SubSec = 0);
     
     void set(const uint32_t u32_Sec, const uint32_t u32_SubSec = 0);
-    uint32_t get(uint32_t *pu32_Sec = NULL, uint32_t *pu32_SubSec = NULL);
+    uint32_t get(uint32_t *pu32_Sec = nullptr, uint32_t *pu32_SubSec = nullptr);
     
     bool operator==(const Time &T2);
     bool operator<=(const Time &T2);
@@ -111,7 +111,7 @@ namespace PUS
              const uint8_t u8_Hour, const uint8_t u8_Min, const uint8_t u8_Sec = 0);
     
     void get(uint16_t *pu16_Year, uint8_t *pu8_Month, uint8_t *pu8_Day,
-             uint8_t *pu8_Hour, uint8_t *pu8_Min, uint8_t *pu8_Sec = NULL);
+             uint8_t *pu8_Hour, uint8_t *pu8_Min, uint8_t *pu8_Sec = nullptr);
     
   private:
     static uint32_t _gregorian2UnixTime(uint32_t *pu32_TimeInSec,

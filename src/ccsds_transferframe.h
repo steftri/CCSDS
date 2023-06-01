@@ -11,8 +11,6 @@
 #ifndef _CCSDS_TRANSFERFRAME_H_
 #define _CCSDS_TRANSFERFRAME_H_
 
-
-
 /****************************************************************/
 /* Transferframes according to                                  */
 /*                                                              */
@@ -26,6 +24,8 @@
 /*    https://public.ccsds.org/Pubs/232x0b3.pdf                 */
 /*                                                              */
 /****************************************************************/
+
+#include <inttypes.h>
 
 #include "configCCSDS.h"
 

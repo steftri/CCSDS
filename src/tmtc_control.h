@@ -12,6 +12,7 @@
 #ifndef _TMTC_CONTROL_H_
 #define _TMTC_CONTROL_H_
 
+#include <inttypes.h>
 
 #include "configCCSDS.h"
 

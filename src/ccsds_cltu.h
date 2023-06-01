@@ -8,9 +8,11 @@
  * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
  */
 
-
 #ifndef _CCSDS_CLTU_H_
 #define _CCSDS_CLTU_H_
+
+#include <inttypes.h>
+
 
 #ifdef configCLTU_MAX_SIZE
 #define CLTU_MAX_SIZE configCLTU_MAX_SIZE

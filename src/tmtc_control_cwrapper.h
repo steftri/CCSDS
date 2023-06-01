@@ -12,11 +12,9 @@
 #ifndef _TMTC_CONTROL_CWRAPPER_H_
 #define _TMTC_CONTROL_CWRAPPER_H_
 
+#include <inttypes.h>
 
 #include "configCCSDS.h"
-
-#include <stdint.h>
-#include <stdbool.h>
 
 
 typedef enum { TM = 0, TC = 1 } ESpPacketType;

@@ -8,10 +8,8 @@
  * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
  */
 
-
 #ifndef _CCSDS_TRANSFERFRAME_TM_H_
 #define _CCSDS_TRANSFERFRAME_TM_H_
-
 
 /****************************************************************/
 /* TM Transferframes according to                               */
@@ -27,6 +25,7 @@
 /*                                                              */
 /****************************************************************/
 
+#include <inttypes.h>
 
 #include "configCCSDS.h"
 
