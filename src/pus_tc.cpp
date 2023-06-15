@@ -13,11 +13,8 @@
 #include "pus_tc.h"
 
 
-namespace PUS 
+namespace PUS
 {
-  
-#define TC_SEC_HEADER_SIZE  6  
-  
   
   /**
    * @brief Construct a new PUS TC object
@@ -60,7 +57,7 @@ namespace PUS
                       const uint8_t u8_SourceID,
                       const uint8_t *pu8_Data, const uint32_t u32_DataSize)
   {
-    if(!pu8_SecHdrBuffer || (u32_SecHdrSize<TC_SEC_HEADER_SIZE))
+    if(!pu8_SecHdrBuffer || (u32_SecHdrSize<tc::SecHeaderSize))
       return 0;
     if(!pu8_PacketDataBuffer || (u32_PacketDataSize<u32_DataSize))
       return 0;
@@ -105,7 +102,7 @@ namespace PUS
     uint8_t u8_SourceID;
     //uint16_t u16_Spare;
     
-    if(u32_BufferSize<TC_SEC_HEADER_SIZE)
+    if(u32_BufferSize<SecHeaderSize)
       return -1;
     
     b_AckAcc = (pu8_Buffer[0]&0x08)?true:false;
@@ -120,7 +117,7 @@ namespace PUS
     if(nullptr!=mp_PusTcCallback)
       mp_PusTcCallback(mp_Context, b_AckAcc, b_AckStart, b_AckProg, b_AckComp,
                        u8_Service, u8_SubService, u8_SourceID,
-                       &pu8_Buffer[TC_SEC_HEADER_SIZE], u32_BufferSize-TC_SEC_HEADER_SIZE);
+                       &pu8_Buffer[SecHeaderSize], u32_BufferSize-SecHeaderSize);
     
     return 0;
   }

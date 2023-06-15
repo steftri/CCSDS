@@ -21,13 +21,11 @@
 
 #include <inttypes.h>
 
+//#include "configCCSDS.h"
+
 
 namespace PUS 
 {
-  
-#define PUS_TC_HEADER_SIZE  6   // can act as spacepacket secondary header
-#define PUS_TC_MAX_DATA_SIZE 20
-  
   /**
    * @brief Class for handling the telecommands as described in the Packet Utilization Standard (PUS), ECSS-E-70-41A.
    *
@@ -38,6 +36,9 @@ namespace PUS
   class tc
   {
   public:
+    static const auto SecHeaderSize = 6;
+    static const auto MaxDataSize = 20;
+
     enum CcsdsSecHeaderFlag
     {
       Custom = 0,
@@ -104,7 +105,6 @@ namespace PUS
   public:
     
     static uint16_t _calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize);
-    
     
   };
   
