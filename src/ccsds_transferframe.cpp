@@ -39,13 +39,13 @@ namespace CCSDS
    * @brief Construct a new Transferframe object
    */
   Transferframe::Transferframe(void)
+    : mu16_Index{0}
+    , mu16_FrameLength{0}
+    , mb_Sync{true}
+    , mu16_SyncErrorCount{0}
+    , mu16_ChecksumErrorCount{0}
+    , mu16_OverflowErrorCount{0}
   {
-    mu16_Index = 0;
-    mu16_FrameLength = 0;
-    mb_Sync = true;
-    mu16_SyncErrorCount = 0;
-    mu16_ChecksumErrorCount = 0;
-    mu16_OverflowErrorCount = 0;
   }
   
   

@@ -25,13 +25,12 @@ namespace CCSDS
   /**
    * @brief Construct a new TransferframeTc object
    *
-   * @param p_TcContext   A pointer to the context which has to be used when a telecommand transfer frame is received
-   * @param p_TcCallback  This callback is called when a telecommand transfer frame is received
+   * @param p_ActionInterface   A pointer to the implementation of the action interface
    */
-  TransferframeTc::TransferframeTc(void *p_TcContext, TTcCallback *p_TcCallback) : Transferframe()
+  TransferframeTc::TransferframeTc(TransferframeTcActionInterface *p_ActionInterface) 
+    : Transferframe()
+    , mp_ActionInterface{p_ActionInterface}
   {
-    mp_TcContext = p_TcContext;
-    mp_TcCallback = p_TcCallback;
   }
   
   
@@ -39,13 +38,11 @@ namespace CCSDS
   /**
    * @brief Overwrites the context pointer and callback which were set using the constructor
    *
-   * @param p_TcContext   A pointer to the context which has to be used when a telecommand transfer frame is received
-   * @param p_TcCallback  This callback is called when a telecommand transfer frame is received
+   * @param p_ActionInterface   A pointer to the implementation of the action interface
    */
-  void TransferframeTc::setCallback(void *p_TcContext, TTcCallback *p_TcCallback)
+  void TransferframeTc::setActionInterface(TransferframeTcActionInterface *p_ActionInterface)
   {
-    mp_TcContext = p_TcContext;
-    mp_TcCallback = p_TcCallback;
+    mp_ActionInterface = p_ActionInterface;
   }
   
   
@@ -167,12 +164,12 @@ namespace CCSDS
     u8_FrameSeqNumber = mau8_Buffer[4];
     
     
-    if(mp_TcCallback)
+    if(mp_ActionInterface)
     {
-      mp_TcCallback(mp_TcContext, b_BypassFlag, b_CtrlCmdFlag,
-                    u16_SpacecraftID, u8_VirtualChannelID,
-                    u8_FrameSeqNumber,
-                    &mau8_Buffer[PrimaryHdrSize], (mu16_FrameLength+1)-PrimaryHdrSize-(UseFECF?FecfSize:0));
+      mp_ActionInterface->onTransferframeTcReceived(b_BypassFlag, b_CtrlCmdFlag,
+                                                    u16_SpacecraftID, u8_VirtualChannelID,
+                                                    u8_FrameSeqNumber,
+                                                    &mau8_Buffer[PrimaryHdrSize], (mu16_FrameLength+1)-PrimaryHdrSize-(UseFECF?FecfSize:0));
     }
     return 0;
   }

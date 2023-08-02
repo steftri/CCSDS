@@ -18,37 +18,24 @@ namespace CCSDS
   /**
    * @brief Construct a new Cltu object
    *
-   * @param p_StartOfTransmissionContext   A pointer to the context which has to be used when a start of transmission is detected
-   * @param p_StartOfTransmissionCallback  This callback is called when a start of transmission is detected
-   * @param p_ReceiveContext               A pointer to the context which has to be used when a data block is received
-   * @param p_ReceiveCallback              This callback is called when a data block is received
+   * @param p_ActionInterface  A pointer to the implementation of the action interface
    */
-  Cltu::Cltu(void *p_StartOfTransmissionContext, TStartOfTransmissionCallback *p_StartOfTransmissionCallback,
-             void *p_ReceiveContext, TReceiveCallback *p_ReceiveCallback)
+  Cltu::Cltu(CltuActionInterface *p_ActionInterface)
+    : mb_Sync{false}
+    , mu8_Index{0}
+    , mp_ActionInterface{p_ActionInterface}
   {
-    mb_Sync = false;
-    mp_StartOfTransmissionContext = p_StartOfTransmissionContext;
-    mp_StartOfTransmissionCallback  = p_StartOfTransmissionCallback;
-    mp_ReceiveContext = p_ReceiveContext;
-    mp_ReceiveCallback = p_ReceiveCallback;
   }
   
   
   /**
-   * @brief Overwrites the context pointers and callbacks which were set using the constructor
+   * @brief Sets the action class which is used to call the methods when an action is to be called
    *
-   * @param p_StartOfTransmissionContext   A pointer to the context which has to be used when a start of transmission is detected
-   * @param p_StartOfTransmissionCallback  This callback is called when a start of transmission is detected
-   * @param p_ReceiveContext               A pointer to the context which has to be used when a data block is received
-   * @param p_ReceiveCallback              This callback is called when a data block is received
+   * @param p_ActionInterface A pointer to the implementation of the action interface
    */
-  void Cltu::setCallbacks(void *p_StartOfTransmissionContext, TStartOfTransmissionCallback *p_StartOfTransmissionCallback,
-                          void *p_ReceiveContext, TReceiveCallback *p_ReceiveCallback)
+  void Cltu::setActionInterface(CltuActionInterface *p_ActionInterface)
   {
-    mp_StartOfTransmissionContext = p_StartOfTransmissionContext;
-    mp_StartOfTransmissionCallback  = p_StartOfTransmissionCallback;
-    mp_ReceiveContext = p_ReceiveContext;
-    mp_ReceiveCallback = p_ReceiveCallback;
+    mp_ActionInterface = p_ActionInterface;
   }
   
   
@@ -144,8 +131,8 @@ namespace CCSDS
           //cout << "Sync found" << endl;
           mb_Sync=true;
           mu8_Index=0;
-          if(mp_StartOfTransmissionCallback)
-            mp_StartOfTransmissionCallback(mp_StartOfTransmissionContext);
+          if(mp_ActionInterface)
+            mp_ActionInterface->onStartOfTransmission();
         }
       }
       else
@@ -159,8 +146,8 @@ namespace CCSDS
         {
           if(calcCRC(mau8_Buffer, DataBlockSize) == pu8_Data[i])
           {
-            if(mp_ReceiveCallback)
-              mp_ReceiveCallback(mp_ReceiveContext, mau8_Buffer, DataBlockSize);
+            if(mp_ActionInterface)
+              mp_ActionInterface->onCltuDataReceived(mau8_Buffer, DataBlockSize);
           }
           else
           {

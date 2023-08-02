@@ -49,7 +49,38 @@
 
 namespace CCSDS 
 {
-  
+
+  /**
+   * @brief Interface class for handling transferframe tc packet actions
+   */
+  class TransferframeTcActionInterface
+  {
+  public:
+    /**
+     * @brief Declaration of the action which shall be called if a complete telecommand transfer frame was received
+     *
+     * The implementation of this callback shall handle the telecommand transfer frame. It shall implement the
+     * Frame Acceptance and Reporting Mechanism (FARM) as well as further processing of the embedded
+     * protocol (usually space packets) or forwarding the packet to another target.
+     *
+     * @param b_BypassFlag        Indicates if the command was sent in AD mode (BypassFlag is false) with
+     *                           handling of the Frame Acceptance and Reporting Mechanism (FARM) or in
+     *                           BD mode (BypassFlag is true, each packet shall be accepted onboard)
+     * @param b_CtrlCmdFlag       Indicates if the packet is intended for the AD mode mechanism
+     * @param u16_SpacecraftID    The target spacecraft ID
+     * @param u8_VirtualChannelID The virtual channel ID
+     * @param u8_FrameSeqNumber   The virtual channel specific frame sequence number
+     * @param pu8_Data            A pointer to the data block which holds the content of the package
+     * @param u16_DataSize        The size of the data block in bytes
+     */
+    virtual void onTransferframeTcReceived(const bool b_BypassFlag, const bool b_CtrlCmdFlag,
+                                           const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
+                                           const uint8_t u8_FrameSeqNumber,
+                                           const uint8_t *pu8_Data, const uint16_t u16_DataSize) = 0;
+  };
+
+
+
   /**
    * @brief Class for handling the Transfer Frames for Telecommand as described in CCSDS 232.0-B-3.
    *
@@ -76,47 +107,18 @@ namespace CCSDS
    */
   class TransferframeTc : public Transferframe
   {
-  public:
-    
-    /**
-     * @typedef TTcCallback
-     * @brief Declaration of the callback which shall be called if a complete telecommand transfer frame was received
-     *
-     * The implementation of this callback shall handle the telecommand transfer frame. It shall implement the
-     * Frame Acceptance and Reporting Mechanism (FARM) as well as further processing of the embedded
-     * protocol (usually space packets) or forwarding the packet to another target.
-     *
-     * @param p_Context           The pointer to the context which has to be used
-     * @param b_BypassFlag        Indicates if the command was sent in AD mode (BypassFlag is false) with
-     *                           handling of the Frame Acceptance and Reporting Mechanism (FARM) or in
-     *                           BD mode (BypassFlag is true, each packet shall be accepted onboard)
-     * @param b_CtrlCmdFlag       Indicates if the packet is intended for the AD mode mechanism
-     * @param u16_SpacecraftID    The target spacecraft ID
-     * @param u8_VirtualChannelID The virtual channel ID
-     * @param u8_FrameSeqNumber   The virtual channel specific frame sequence number
-     * @param pu8_Data            A pointer to the data block which holds the content of the package
-     * @param u16_DataSize        The size of the data block in bytes
-     */
-    typedef void (TTcCallback)(void *p_Context, const bool b_BypassFlag, const bool b_CtrlCmdFlag,
-                               const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                               const uint8_t u8_FrameSeqNumber,
-                               const uint8_t *pu8_Data, const uint16_t u16_DataSize);
-    
-    
   private:
-    static const int TcTfVersionNumber = 0;
+    const static int TcTfVersionNumber = 0;
     const static uint8_t PrimaryHdrSize = TC_TF_PRIM_HEADER_SIZE;
     const static uint16_t MaxTfSize = TC_TF_MAX_SIZE;
     uint8_t mau8_Buffer[MaxTfSize];
     
-    void *mp_TcContext;
-    TTcCallback *mp_TcCallback;
+    TransferframeTcActionInterface *mp_ActionInterface;
     
   public:
-    TransferframeTc(void *p_TcContext = nullptr, TTcCallback *mp_TcCallback = nullptr);
+    TransferframeTc(TransferframeTcActionInterface *p_ActionInterface = nullptr);
     
-    void setCallback(void *p_TcContext, TTcCallback *mp_TcCallback);
-    
+    void setActionInterface(TransferframeTcActionInterface *p_ActionInterface);
     
     // TC generation
     static uint32_t create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
@@ -139,8 +141,7 @@ namespace CCSDS
     inline uint16_t _getPrimaryHeaderSize(void);
     inline void _getFrameLength(void);
   };
-  
-  
+    
 }
 
 

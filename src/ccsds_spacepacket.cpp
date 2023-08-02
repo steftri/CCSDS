@@ -19,42 +19,38 @@ namespace CCSDS
   /**
    * @brief Construct a new SpacePacket object
    *
-   * @param p_SpContext   A pointer to the context which has to be used when a space packet is received
-   * @param p_SpCallback  This callback is called when a space packet is received
+   * @param p_ActionInterface   A pointer to the implementation of the action interface
    */
-  SpacePacket::SpacePacket(void *p_SpContext, TSpCallback *p_SpCallback)
+  SpacePacket::SpacePacket(SpacePacketActionInterface *p_ActionInterface)
+    : mu32_Index{0}
+    , mu8_PacketVersionNumber{0}
+    , me_PacketType{TM}
+    , mb_SecHdrFlag{false}
+    , mu16_APID{0x000}
+    , me_SequenceFlags{Unsegmented}
+    , mu16_PacketSequenceCount{0}
+    , mu16_PacketDataLength{0}
+    , mb_Overflow{false}
+    , mu16_SyncErrorCount{0}
+    , mu16_OverflowErrorCount{0}
+    , mp_ActionInterface{p_ActionInterface}
   {
-    mu32_Index = 0;
-    mu8_PacketVersionNumber = 0;
-    me_PacketType = SpacePacket::TM;
-    mb_SecHdrFlag = false;
-    mu16_APID = 0x000;
-    me_SequenceFlags = SpacePacket::Unsegmented;
-    mu16_PacketSequenceCount = 0;
-    mu16_PacketDataLength = 0;
-    mu16_SyncErrorCount = 0;
-    mb_Overflow = 0;
+  }
+  
     
-    mp_SpContext = p_SpContext;
-    mp_SpCallback = p_SpCallback;
-  }
-  
-  
-  
+
   /**
-   * @brief Overwrites the context pointer and callback which were set using the constructor
+   * @brief Sets the action class which is used to call the methods when an action is to be called
    *
-   * @param p_SpContext   A pointer to the context which has to be used when a space packet is received
-   * @param p_SpCallback  This callback is called when a space packet is received
+   * @param p_ActionInterface A pointer to the implementation of the action interface
    */
-  void SpacePacket::setCallback(void *p_SpContext, TSpCallback *p_SpCallback)
+  void SpacePacket::setActionInterface(SpacePacketActionInterface *p_ActionInterface)
   {
-    mp_SpContext = p_SpContext;
-    mp_SpCallback = p_SpCallback;
+    mp_ActionInterface = p_ActionInterface;
   }
-  
-  
-  
+
+
+
   /**
    * @brief Creates a Space Packet and writes it into the given buffer
    *
@@ -260,8 +256,8 @@ namespace CCSDS
       mu32_Index++;
       if((mu32_Index>=SP_HEADER_SIZE) && (mu32_Index>=(SP_HEADER_SIZE+mu16_PacketDataLength+1UL)))
       {
-        if(nullptr!=mp_SpCallback)
-          mp_SpCallback(mp_SpContext, me_PacketType, me_SequenceFlags, mu16_APID, mu16_PacketSequenceCount, mb_SecHdrFlag, au8_PacketData, mu16_PacketDataLength+1);
+        if(nullptr!=mp_ActionInterface)
+          mp_ActionInterface->onSpacePacketReceived(me_PacketType, me_SequenceFlags, mu16_APID, mu16_PacketSequenceCount, mb_SecHdrFlag, au8_PacketData, mu16_PacketDataLength+1);
         mu32_Index = 0;
         mb_Overflow = false;
       }

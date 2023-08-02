@@ -8,7 +8,6 @@
  * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
  */
 
-
 #ifndef _CCSDS_SPACEPACKET_H_
 #define _CCSDS_SPACEPACKET_H_
 
@@ -42,6 +41,34 @@
 
 namespace CCSDS 
 {
+
+  /**
+   * @brief Interface class for handling space packet actions
+   */
+  class SpacePacketActionInterface
+  {
+  public:
+    /**
+     * @brief Declaration of the action which shall be called if a complete space packet was received
+     *
+     * The implementation of this callback shall handle the space packet. It shall implement the fowarding to the
+     * corresponding application (or the further processing of the content).
+     *
+     * @param u8_PacketType       The packet type (TM or TC)
+     * @param u8_SequenceFlags    The sequence flags (Continuation, First, Last Segment or Unsegmented)
+     * @param u16_APID            The target application ID
+     * @param u16_SequenceCount   The channel-specific frame count
+     * @param b_SecHeader         A flag which indicates the presence of a secondary space packet header
+     * @param pu8_PacketData      A pointer to the data block which holds the content of the package
+     * @param u16_PacketDataLength The size of the data block in bytes
+     */
+    virtual void onSpacePacketReceived(const uint8_t u8_PacketType,
+                                       const uint8_t u8_SequenceFlags, const uint16_t u16_APID,
+                                       const uint16_t u16_SequenceCount, const bool b_SecHeader,
+                                       const uint8_t *pu8_PacketData, const uint16_t u16_PacketDataLength) = 0;
+  };
+
+
   
   /**
    * @brief Class for handling the Space Packets as described in CCSDS 133.0-B-2.
@@ -82,28 +109,6 @@ namespace CCSDS
       Unsegmented = 0x3           /**< If the package is completly within one source packet, this flag is used. */
     };
     
-    
-    /**
-     * @typedef TSpCallback
-     * @brief Declaration of the callback which shall be called if a complete space packet was received
-     *
-     * The implementation of this callback shall handle the space packet. It shall implement the fowarding to the
-     * corresponding application (or the further processing of the content.
-     *
-     * @param p_SpContext         The pointer to the context which has to be used
-     * @param u8_PacketType       The packet type (TM or TC)
-     * @param u8_SequenceFlags    The sequence flags (Continuation, First, Last Segment or Unsegmented)
-     * @param u16_APID            The target application ID
-     * @param u16_SequenceCount   The channel-specific frame count
-     * @param b_SecHeader         A flag which indicates the presence of a secondary space packet header
-     * @param pu8_PacketData      A pointer to the data block which holds the content of the package
-     * @param u16_PacketDataLength The size of the data block in bytes
-     */
-    typedef void (TSpCallback)(void *p_SpContext, const uint8_t u8_PacketType,
-                               const uint8_t u8_SequenceFlags, const uint16_t u16_APID,
-                               const uint16_t u16_SequenceCount, const bool b_SecHeader,
-                               const uint8_t *pu8_PacketData, const uint16_t u16_PacketDataLength);
-    
   private:
     const static uint8_t SpPacketVersion = 0;
     const static uint8_t PrimaryHdrSize = SP_HEADER_SIZE;
@@ -122,16 +127,13 @@ namespace CCSDS
     uint16_t mu16_SyncErrorCount;
     uint16_t mu16_OverflowErrorCount;
     
-    void *mp_SpContext;
-    TSpCallback *mp_SpCallback;
-    
-    
+    SpacePacketActionInterface *mp_ActionInterface;
+
   public:
-    SpacePacket(void *p_SpContext = nullptr, TSpCallback *mp_SpCallback = nullptr);
-    
-    void setCallback(void *p_SpContext, TSpCallback *mp_SpCallback);
-    
-    
+    SpacePacket(SpacePacketActionInterface *p_ActionInterface = nullptr);
+
+    void setActionInterface(SpacePacketActionInterface *p_ActionInterface);
+        
     // SP generation
     static uint32_t create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
                            const PacketType e_PacketType, const SequenceFlags e_SequenceFlags, const uint16_t u16_APID, const uint16_t u16_SequenceCount,

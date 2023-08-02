@@ -23,14 +23,39 @@
 
 namespace CCSDS
 {
-  
-  typedef void (TStartOfTransmissionCallback)(void *p_Context);
-  typedef void (TReceiveCallback)(void *p_Context, const uint8_t *pu8_Data, const uint16_t u16_DataSize);
-  
+
+  /**
+   * @brief Interface class for handling cltu actions
+   */
+  class CltuActionInterface
+  {
+  public:
+    /**
+     * @brief Declaration of the action which shall be called if a start of transmission was detected.
+     *
+     * The implementation of this callback shall handle a start of transmission. It shall implement the fowarding to the
+     * corresponding application (or the further processing of the content).
+     */
+    virtual void onStartOfTransmission(void) = 0;
+
+    /**
+     * @brief Declaration of the action which shall be called if complete cltus were received
+     *
+     * The implementation of this callback shall handle the cltu content. It shall implement the fowarding to the
+     * corresponding application (or the further processing of the content).
+     *
+     * @param pu8_Data      A pointer to the data block which holds the content of the package
+     * @param u16_DataSize  The size of the data block in bytes
+     */
+    virtual void onCltuDataReceived(const uint8_t *pu8_Data, const uint16_t u16_DataSize) = 0;
+  };
+
+
+
   /**
    * @brief Class for handling Communications Link Transmission Unit (CLTU) as described in CCSDS 231.0-B-3.
    *
-   * CLTUs are used to syncronize to the uplink data stream.
+   * CLTUs are used to syncronize to the uplink data strea
    *
    * On real satellites, CLTUs are usually processed by hardware, and the raw Transfer Frames are handed over to the
    * application which handles the communication between ground and the satellite. With this class, it is possible to
@@ -48,22 +73,15 @@ namespace CCSDS
     uint8_t mau8_Buffer[DataBlockSize];
     uint8_t mu8_Index;
     
-    void *mp_StartOfTransmissionContext;
-    TStartOfTransmissionCallback *mp_StartOfTransmissionCallback;
-    
-    void *mp_ReceiveContext;
-    TReceiveCallback *mp_ReceiveCallback;
+    CltuActionInterface *mp_ActionInterface;
     
   public:
-    Cltu(void *p_StartOfTransmissionContext = nullptr, TStartOfTransmissionCallback *p_StartOfTransmissionCallback = nullptr,
-         void *p_ReceiveContext = nullptr, TReceiveCallback *p_ReceiveCallback = nullptr);
+    Cltu(CltuActionInterface *p_ActionInterface = nullptr);
     
-    void setCallbacks(void *p_StartOfTransmissionContext, TStartOfTransmissionCallback *p_StartOfTransmissionCallback,
-                      void *p_ReceiveContext, TReceiveCallback *p_ReceiveCallback);
-    
+    void setActionInterface(CltuActionInterface *p_ActionInterface);
     
   public:
-    static uint32_t create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
+   static uint32_t create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
                            const uint8_t *pu8_Data, const uint16_t u16_DataSize);
     
     void process(const uint8_t *pu8_Data, const uint16_t u16_DataSize);
@@ -71,8 +89,7 @@ namespace CCSDS
   private:
     static uint8_t calcCRC(const uint8_t *pu8_Buffer, const uint8_t u8_BufferSize);
   };
-  
-  
+    
 }
 
 #endif /* _CCSDS_CLTU_H_ */

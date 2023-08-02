@@ -26,26 +26,23 @@ namespace CCSDS
   /**
    * @brief Construct a new TransferframeTm object
    *
-   * @param p_TmContext   A pointer to the context which has to be used when a telemetry transfer frame is received
-   * @param p_TmCallback  This callback is called when a telemetry transfer frame is received
+   * @param p_ActionInterface   A pointer to the implementation of the action interface
    */
-  TransferframeTm::TransferframeTm(void *p_TmContext, TTmCallback *p_TmCallback) : Transferframe()
+  TransferframeTm::TransferframeTm(TransferframeTmActionInterface *p_ActionInterface) 
+    : Transferframe()
+    , mp_ActionInterface{p_ActionInterface}  
   {
-    mp_TmContext = p_TmContext;
-    mp_TmCallback = p_TmCallback;
   }
   
   
   /**
    * @brief Overwrites the context pointer and callback which were set using the constructor
    *
-   * @param p_TmContext   A pointer to the context which has to be used when a telemetry transfer frame is received
-   * @param p_TmCallback  This callback is called when a telemetry transfer frame is received
+   * @param p_ActionInterface   A pointer to the implementation of the action interface
    */
-  void TransferframeTm::setCallback(void *p_TmContext, TTmCallback *p_TmCallback)
+  void TransferframeTm::setActionInterface(TransferframeTmActionInterface *p_ActionInterface)
   {
-    mp_TmContext = p_TmContext;
-    mp_TmCallback = p_TmCallback;
+    mp_ActionInterface = p_ActionInterface;
   }
   
   
@@ -251,9 +248,9 @@ namespace CCSDS
     }
 #endif
     
-    if(mp_TmCallback)
+    if(mp_ActionInterface)
     {
-      mp_TmCallback(mp_TmContext, u16_SpacecraftID, u8_VirtualChannelID,
+      mp_ActionInterface->onTransferframeTmReceived(u16_SpacecraftID, u8_VirtualChannelID,
                     u8_MasterChannelFrameCount, u8_VirtualChannelFrameCount,
                     b_TFSecHdrFlag, u16_FirstHdrPtr,
                     &mau8_Buffer[PrimaryHdrSize], TM_TF_TOTAL_SIZE-PrimaryHdrSize-((UseOCF&&b_OcfFlag)?OcfSize:0)-(UseFECF?FecfSize:0),

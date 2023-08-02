@@ -47,7 +47,39 @@
 
 namespace CCSDS
 {
-  
+
+  /**
+   * @brief Interface class for handling transferframe tm packet actions
+   */
+  class TransferframeTmActionInterface
+  {
+  public:
+    /**
+     * @brief Declaration of the action which shall be called if a complete telemetry transfer frame was received
+     *
+     * The implementation of this callback shall handle the telemetry transfer frame. It shall implement the
+     * Frame Acceptance and Reporting Mechanism (FARM) as well as further processing of the embedded
+     * protocol (usually space packets).
+     *
+     * @param u16_SpacecraftID    The souce spacecraft ID
+     * @param u8_VirtualChannelID The virtual channel ID
+     * @param u8_MasterChannelFrameCount  The overall frame count over all virtual channels
+     * @param u8_VirtualChannelFrameCount The channel-specific frame count
+     * @param b_TFSecHdrFlag      A flag which indicates the presence of a secondary transfer frame header
+     * @param u16_FirstHdrPtr     Offset of the first space packet within the data section
+     * @param pu8_Data            A pointer to the data block which holds the content of the package
+     * @param u16_DataSize        The size of the data block in bytes
+     * @param u32_OCF             The Operational Control Field (OCF), which is part of the flow control
+     *                            mechanism for uplink data (can hold the Communications Link Control Word (CLCW))
+     */
+    virtual void onTransferframeTmReceived(const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
+                               const uint8_t u8_MasterChannelFrameCount, const uint8_t u8_VirtualChannelFrameCount,
+                               const bool b_TFSecHdrFlag, const uint16_t u16_FirstHdrPtr,
+                               const uint8_t *pu8_Data, const uint16_t u16_DataSize,
+                               const uint32_t u32_OCF) = 0;
+  };
+
+
   
   /**
    * @brief Class for handling the Transfer Frames for Telemetry as described in CCSDS 132.0-B-2.
@@ -79,36 +111,7 @@ namespace CCSDS
    * source packets.
    */
   class TransferframeTm : public Transferframe
-  {
-  public:
-    
-    /**
-     * @typedef TTmCallback
-     * @brief Declaration of the callback which shall be called if a complete telemetry transfer frame was received
-     *
-     * The implementation of this callback shall handle the telemetry transfer frame. It shall implement the
-     * Frame Acceptance and Reporting Mechanism (FARM) as well as further processing of the embedded
-     * protocol (usually space packets).
-     *
-     * @param p_Context           The pointer to the context which has to be used
-     * @param u16_SpacecraftID    The souce spacecraft ID
-     * @param u8_VirtualChannelID The virtual channel ID
-     * @param u8_MasterChannelFrameCount  The overall frame count over all virtual channels
-     * @param u8_VirtualChannelFrameCount The channel-specific frame count
-     * @param b_TFSecHdrFlag      A flag which indicates the presence of a secondary transfer frame header
-     * @param u16_FirstHdrPtr     Offset of the first space packet within the data section
-     * @param pu8_Data            A pointer to the data block which holds the content of the package
-     * @param u16_DataSize        The size of the data block in bytes
-     * @param u32_OCF             The Operational Control Field (OCF), which is part of the flow control
-     *                            mechanism for uplink data (can hold the Communications Link Control Word (CLCW))
-     */
-    typedef void (TTmCallback)(void *p_Context, const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                               const uint8_t u8_MasterChannelFrameCount, const uint8_t u8_VirtualChannelFrameCount,
-                               const bool b_TFSecHdrFlag, const uint16_t u16_FirstHdrPtr,
-                               const uint8_t *pu8_Data, const uint16_t u16_DataSize,
-                               const uint32_t u32_OCF);
-    
-    
+  {    
   private:
     static const int TmTfVersionNumber = 0;
     const static uint8_t PrimaryHdrSize = 6;
@@ -118,13 +121,12 @@ namespace CCSDS
     
     const static bool UseOCF = (TF_USE_OCF)?true:false;  // Operational Control Field (CLCW)
     
-    void *mp_TmContext;
-    TTmCallback *mp_TmCallback;
+    TransferframeTmActionInterface *mp_ActionInterface;
     
   public:
-    TransferframeTm(void *p_TmContext = nullptr, TTmCallback *mp_TmCallback = nullptr);
+    TransferframeTm(TransferframeTmActionInterface *p_ActionInterface = nullptr);
     
-    void setCallback(void *p_TmContext, TTmCallback *mp_TmCallback);
+    void setActionInterface(TransferframeTmActionInterface *p_ActionInterface);
     
     
     // TM generation
