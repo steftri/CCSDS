@@ -13,7 +13,6 @@
 #include "pus_tc.h"
 
 
-<<<<<<< HEAD
 #define DATA_FIELD_HDR_FLAGS_POS      0
 #define  DFH_SEC_HDR_FLAG_POS     7
 #define  DFH_PUS_VERSION_POS      4
@@ -31,11 +30,6 @@
 namespace PUS 
 {
 
-=======
-namespace PUS
-{
-  
->>>>>>> 9b3ccdb66ece99823c9b846576e1ac99c915b688
   /**
    * @brief Construct a new PUS TC object
    *
@@ -104,11 +98,7 @@ namespace PUS
                       const uint8_t u8_SourceID,
                       const uint8_t *pu8_Data, const uint32_t u32_DataSize)
   {
-<<<<<<< HEAD
     if(!pu8_SecHdrBuffer || (u32_SecHdrSize<MinSecHdrSize))
-=======
-    if(!pu8_SecHdrBuffer || (u32_SecHdrSize<tc::SecHeaderSize))
->>>>>>> 9b3ccdb66ece99823c9b846576e1ac99c915b688
       return 0;
     if(!pu8_PacketDataBuffer || (u32_PacketDataSize<u32_DataSize))
       return 0;
@@ -157,7 +147,6 @@ namespace PUS
     uint8_t u8_SubService;
     uint8_t u8_SourceID = 0;
     
-<<<<<<< HEAD
     if((u32_BufferSize<MinSecHdrSize) || (u32_BufferSize<mu8_SecHdrSize))
       return -1;
     
@@ -169,24 +158,6 @@ namespace PUS
     u8_SubService = pu8_Buffer[DATA_FIELD_HDR_SUBSERVICE_POS];
     if(mu8_SecHdrSize>=DATA_FIELD_HDR_SOURCEID_POS)
       u8_SourceID = pu8_Buffer[DATA_FIELD_HDR_SOURCEID_POS];
-=======
-    if(u32_BufferSize<SecHeaderSize)
-      return -1;
-    
-    b_AckAcc = (pu8_Buffer[0]&0x08)?true:false;
-    b_AckStart = (pu8_Buffer[0]&0x04)?true:false;
-    b_AckProg = (pu8_Buffer[0]&0x02)?true:false;
-    b_AckComp = (pu8_Buffer[0]&0x01)?true:false;
-    u8_Service = pu8_Buffer[1];
-    u8_SubService = pu8_Buffer[2];
-    u8_SourceID = pu8_Buffer[3];
-    //u16_Spare = ((uint16_t)pu8_Buffer[4]<<8) | (uint16_t)pu8_Buffer[5];
-    
-    if(nullptr!=mp_PusTcCallback)
-      mp_PusTcCallback(mp_Context, b_AckAcc, b_AckStart, b_AckProg, b_AckComp,
-                       u8_Service, u8_SubService, u8_SourceID,
-                       &pu8_Buffer[SecHeaderSize], u32_BufferSize-SecHeaderSize);
->>>>>>> 9b3ccdb66ece99823c9b846576e1ac99c915b688
     
     if(nullptr!=mp_ActionInterface)
     {
