@@ -13,25 +13,63 @@
 #include "pus_tc.h"
 
 
+#define DATA_FIELD_HDR_FLAGS_POS      0
+#define  DFH_SEC_HDR_FLAG_POS     7
+#define  DFH_PUS_VERSION_POS      4
+#define  DFH_FLAG_ACK_COMP_POS    3
+#define  DFH_FLAG_ACK_PROG_POS    2
+#define  DFH_FLAG_ACK_START_POS   1
+#define  DFH_FLAG_ACK_ACC_POS     0
+#define DATA_FIELD_HDR_SERVICE_POS    1
+#define DATA_FIELD_HDR_SUBSERVICE_POS 2
+#define DATA_FIELD_HDR_SOURCEID_POS   3
+#define DATA_FIELD_HDR_SPARE_POS      4
+
+
+
 namespace PUS 
 {
-  
-#define TC_SEC_HEADER_SIZE  6  
-  
-  
+
   /**
    * @brief Construct a new PUS TC object
    *
-   * @param p_Context        A pointer to the context which has to be used when a command is received
-   * @param p_PusTcCallback  This callback is called when a command is received
+   * @param p_ActionInterface   A pointer to the implementation of the action interface
    */
-  tc::tc(void *p_Context, TPusTcCallback *p_PusTcCallback)
+  Tc::Tc(const uint8_t u8_SecHdrSize, TcActionInterface *p_ActionInterface)
+    : mp_ActionInterface{p_ActionInterface}
   {
-    mp_Context = p_Context;
-    mp_PusTcCallback = p_PusTcCallback;
+    if(u8_SecHdrSize>=MinSecHdrSize)
+      mu8_SecHdrSize = u8_SecHdrSize;
+    else
+      mu8_SecHdrSize = MinSecHdrSize;
   }
-  
-  
+
+
+
+  /**
+   * @brief Construct a new PUS TC object
+   *
+   * @param p_ActionInterface   A pointer to the implementation of the action interface
+   */
+  Tc::Tc(TcActionInterface *p_ActionInterface)
+    : mu8_SecHdrSize{PUS_TC_DEFAULT_SEC_HEADER_SIZE}
+    , mp_ActionInterface{p_ActionInterface}
+  {
+  }
+
+
+
+  /**
+   * @brief Sets the action class which is used to call the methods when an action is to be called
+   *
+   * @param p_ActionInterface A pointer to the implementation of the action interface
+   */
+  void Tc::setActionInterface(TcActionInterface *p_ActionInterface)
+  {
+    mp_ActionInterface = p_ActionInterface;
+  }
+
+
   
   /**
    * @brief Creates a Telecommand and writes it into the given buffer
@@ -53,27 +91,32 @@ namespace PUS
    * @retval 0  No packet could be created
    * @return The size of the created data (without header)
    */
-  uint32_t tc::create(uint8_t *pu8_SecHdrBuffer, const uint32_t u32_SecHdrSize,
+  uint32_t Tc::create(uint8_t *pu8_SecHdrBuffer, const uint32_t u32_SecHdrSize,
                       uint8_t *pu8_PacketDataBuffer, const uint32_t u32_PacketDataSize,
                       const bool b_AckAcc, const bool b_AckStart, const bool b_AckProg, const bool b_AckComp,
                       const uint8_t u8_Service, const uint8_t u8_SubService,
                       const uint8_t u8_SourceID,
                       const uint8_t *pu8_Data, const uint32_t u32_DataSize)
   {
-    if(!pu8_SecHdrBuffer || (u32_SecHdrSize<TC_SEC_HEADER_SIZE))
+    if(!pu8_SecHdrBuffer || (u32_SecHdrSize<MinSecHdrSize))
       return 0;
     if(!pu8_PacketDataBuffer || (u32_PacketDataSize<u32_DataSize))
       return 0;
     if(!pu8_Data)
       return 0;
     
-    pu8_SecHdrBuffer[0] = (uint8_t)((((uint8_t)(Custom)&0x1)<<7) |  (uint8_t)((PusTcPacketVersion&0x7)<<4)
-                                    | ((b_AckAcc?1:0)<<3) | ((b_AckStart?1:0)<<2) | ((b_AckProg?1:0)<<1) | (b_AckComp?1:0));
-    pu8_SecHdrBuffer[1] = u8_Service;
-    pu8_SecHdrBuffer[2] = u8_SubService;
-    pu8_SecHdrBuffer[3] = u8_SourceID;
-    pu8_SecHdrBuffer[4] = 0; //(uint8_t)(u16_Spare>>8);
-    pu8_SecHdrBuffer[5] = 0; //(uint8_t)(u16_Spare&0xff);
+    pu8_SecHdrBuffer[DATA_FIELD_HDR_FLAGS_POS] = (uint8_t)((((uint8_t)(CcsdsSecHeaderFlag::Custom)&0x1)<<7) 
+                                    | (uint8_t)((PacketVersion&0x7)<<DFH_PUS_VERSION_POS)
+                                    | ((b_AckAcc?1:0)<<DFH_FLAG_ACK_ACC_POS) 
+                                    | ((b_AckStart?1:0)<<DFH_FLAG_ACK_START_POS) 
+                                    | ((b_AckProg?1:0)<<DFH_FLAG_ACK_PROG_POS) 
+                                    | ((b_AckComp?1:0)<<DFH_FLAG_ACK_COMP_POS));
+    pu8_SecHdrBuffer[DATA_FIELD_HDR_SERVICE_POS] = u8_Service;
+    pu8_SecHdrBuffer[DATA_FIELD_HDR_SUBSERVICE_POS] = u8_SubService;
+    if(u32_SecHdrSize>DATA_FIELD_HDR_SOURCEID_POS)
+      pu8_SecHdrBuffer[DATA_FIELD_HDR_SOURCEID_POS] = u8_SourceID;
+    for(uint32_t i=DATA_FIELD_HDR_SPARE_POS; i<u32_SecHdrSize; i++)
+      pu8_SecHdrBuffer[i] = 0;
     
     memcpy(pu8_PacketDataBuffer, pu8_Data, u32_DataSize);
     
@@ -94,7 +137,7 @@ namespace PUS
    * @retval  0   If the buffer was extracted successfully
    * @retval -1   If fhe u32_BufferSize is 0 or the pu8_Buffer is nullptr
    */
-  int32_t tc::process(const uint8_t *pu8_Buffer, const uint32_t u32_BufferSize)
+  int32_t Tc::process(const uint8_t *pu8_Buffer, const uint32_t u32_BufferSize)
   {
     bool b_AckAcc;
     bool b_AckStart;
@@ -102,33 +145,32 @@ namespace PUS
     bool b_AckComp;
     uint8_t u8_Service;
     uint8_t u8_SubService;
-    uint8_t u8_SourceID;
-    //uint16_t u16_Spare;
+    uint8_t u8_SourceID = 0;
     
-    if(u32_BufferSize<TC_SEC_HEADER_SIZE)
+    if((u32_BufferSize<MinSecHdrSize) || (u32_BufferSize<mu8_SecHdrSize))
       return -1;
     
-    b_AckAcc = (pu8_Buffer[0]&0x08)?true:false;
-    b_AckStart = (pu8_Buffer[0]&0x04)?true:false;
-    b_AckProg = (pu8_Buffer[0]&0x02)?true:false;
-    b_AckComp = (pu8_Buffer[0]&0x01)?true:false;
-    u8_Service = pu8_Buffer[1];
-    u8_SubService = pu8_Buffer[2];
-    u8_SourceID = pu8_Buffer[3];
-    //u16_Spare = ((uint16_t)pu8_Buffer[4]<<8) | (uint16_t)pu8_Buffer[5];
+    b_AckAcc   = (pu8_Buffer[DATA_FIELD_HDR_FLAGS_POS]&(1<<DFH_FLAG_ACK_ACC_POS))?true:false;
+    b_AckStart = (pu8_Buffer[DATA_FIELD_HDR_FLAGS_POS]&(1<<DFH_FLAG_ACK_START_POS))?true:false;
+    b_AckProg  = (pu8_Buffer[DATA_FIELD_HDR_FLAGS_POS]&(1<<DFH_FLAG_ACK_PROG_POS))?true:false;
+    b_AckComp  = (pu8_Buffer[DATA_FIELD_HDR_FLAGS_POS]&(1<<DFH_FLAG_ACK_COMP_POS))?true:false;
+    u8_Service = pu8_Buffer[DATA_FIELD_HDR_SERVICE_POS];
+    u8_SubService = pu8_Buffer[DATA_FIELD_HDR_SUBSERVICE_POS];
+    if(mu8_SecHdrSize>=DATA_FIELD_HDR_SOURCEID_POS)
+      u8_SourceID = pu8_Buffer[DATA_FIELD_HDR_SOURCEID_POS];
     
-    if(nullptr!=mp_PusTcCallback)
-      mp_PusTcCallback(mp_Context, b_AckAcc, b_AckStart, b_AckProg, b_AckComp,
-                       u8_Service, u8_SubService, u8_SourceID,
-                       &pu8_Buffer[TC_SEC_HEADER_SIZE], u32_BufferSize-TC_SEC_HEADER_SIZE);
-    
+    if(nullptr!=mp_ActionInterface)
+    {
+      mp_ActionInterface->onTcReceived(b_AckAcc, b_AckStart, b_AckProg, b_AckComp,
+                                       u8_Service, u8_SubService, u8_SourceID,
+                                       &pu8_Buffer[mu8_SecHdrSize], u32_BufferSize-mu8_SecHdrSize);
+    }
     return 0;
   }
   
   
   
-  
-  uint16_t tc::_calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize)
+  uint16_t Tc::_calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize)
   {
     uint16_t u16_Syndrome=0xffff;
     uint8_t u8_Data;
