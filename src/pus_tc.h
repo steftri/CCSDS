@@ -21,13 +21,20 @@
 
 #include <inttypes.h>
 
+<<<<<<< HEAD
 #define PUS_TC_DEFAULT_SEC_HEADER_SIZE  5
+=======
+//#include "configCCSDS.h"
+>>>>>>> 9b3ccdb66ece99823c9b846576e1ac99c915b688
 
 
 namespace PUS 
 {
+<<<<<<< HEAD
   
   
+=======
+>>>>>>> 9b3ccdb66ece99823c9b846576e1ac99c915b688
   /**
    * @brief Interface class for handling PUS tc packet actions
    */
@@ -71,6 +78,9 @@ namespace PUS
     const static uint8_t MinSecHdrSize = 4;
     
   public:
+    static const auto SecHeaderSize = 6;
+    static const auto MaxDataSize = 20;
+
     enum CcsdsSecHeaderFlag
     {
       Custom = 0,
@@ -129,6 +139,10 @@ namespace PUS
     
   public:
     static uint16_t _calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize);
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 9b3ccdb66ece99823c9b846576e1ac99c915b688
   };
   
 }

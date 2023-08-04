@@ -87,6 +87,9 @@ namespace CCSDS
   class SpacePacket
   {
   public:
+    static const int MaxSize = SP_MAX_TOTAL_SIZE;     /**< Maximum size of a space packet including header(s) */
+    static const int MaxDataSize = SP_MAX_DATA_SIZE;  /**< Maximum size of the data section of a space packet */
+
     
     /** The package type defines if a space packet contains
      *  a telecommand (TC) or telemetry (TM).
