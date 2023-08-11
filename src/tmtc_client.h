@@ -61,6 +61,26 @@ using namespace CCSDS;
 
 
 /**
+ * @brief Interface class for handling telemetry actions
+ */
+class TmActionInterface
+{
+public:
+  /**
+   * @brief Declaration of the action which shall be called if a complete telemetry transferframe is ready to send
+   *
+   * The implementation of this callback shall send the telemetry packet.
+   *
+   * @param pu8_Data      A pointer to the data block which holds the data to be send
+   * @param u16_DataSize  The size of the data in bytes
+   */
+  virtual void onTmDataCreated(const uint8_t *pu8_Data, const uint16_t u16_DataSize) = 0;
+};
+
+
+
+
+/**
  * @brief Class which implements a Frame Acceptance and Reporting Mechanism (FARM) on the spacecraft
  *
  * The purpose of this class is to integrate the CCSDS protocol classes and allow an easy usage of it.
@@ -71,16 +91,16 @@ using namespace CCSDS;
  *
  * For a simple example how to use this class, see the Arduino example tmtc_client_standalone.
  */
-class TmTcClient
-{
-  // Callback for TM for sending to receiver
-  typedef void (TTfTmCallback)(void *p_Context, const uint8_t *pu8_Data, const uint16_t u16_DataSize);
-  
+class TmTcClient 
+  : private TransferframeTcActionInterface
+#if USE_CLTU_SUPPORT == 1
+  , private CltuActionInterface
+#endif
+{  
 public:
   static const uint8_t MaxTcChannels = TMTC_MAX_TC_CHANNELS;
   static const uint8_t MaxTmChannels = TMTC_MAX_TM_CHANNELS;
-  
-  
+   
 private:
   uint8_t mu8_NumberOfSCIDs;
   uint16_t mau16_SCIDs[TMTC_MAX_SCIDS];
@@ -109,26 +129,21 @@ private:
   uint8_t mau8_TmVCFC[MaxTmChannels];
   uint16_t mu16_IdleSpSequenceCount;
   
-  // Callback for TM for sending to reveicer
-  void *mp_TfTmContext;
-  TTfTmCallback *mp_TfTmCallback;
-  
   uint16_t mu16_ScIdErrorCount;
   uint16_t mu16_VirtualChannelErrorCount;
   uint16_t mu16_RetransmitErrorCount;
   uint16_t mu16_LockoutErrorCount;
   
-  
+  TmActionInterface *mp_TmActionInterface;
+  SpacePacketActionInterface *map_TcSpActionInterface[MaxTcChannels];
   
 public:
   TmTcClient(const uint16_t *pu16_SCIDs, const uint8_t u8_NumberOfSCIDs,
-             void *p_TfTmContext = NULL, TTfTmCallback *p_TfTmCallback = NULL,
-             void *p_VC0SpContext = NULL, SpacePacket::TSpCallback *p_VC0SpCallback = NULL);
-  
-  int32_t setTmCallback(void *p_TfTmContext, TTfTmCallback *p_TfTmCallback);
-  
-  int32_t setTcCallback(const uint8_t u8_VirtualChannelID,
-                        void *p_SpContext, SpacePacket::TSpCallback *p_SpCallback);
+             TmActionInterface *p_TmActionInterface = nullptr, 
+             SpacePacketActionInterface *p_VC0TcActionInterface = nullptr);
+
+  int32_t setTmActionInterface(TmActionInterface *p_ActionInterface);
+  int32_t setTcActionInterface(const uint8_t u8_VirtualChannelID, SpacePacketActionInterface *p_ActionInterface);
   
   uint16_t getScIdErrorCount(void);
   uint16_t getVirtualChannelErrorCount(void);
@@ -136,45 +151,29 @@ public:
   uint16_t getLockoutErrorCount(void);
   void clearErrorCounters(void);
   
-  
   // Telecommand
-  
 public:
   void setSync(void);
   void processTfTc(const uint8_t *pu8_Data, const uint16_t u16_DataSize);
-  
-  static void TfTcCallback(void *p_Context,
-                           const bool b_BypassFlag, const bool b_CtrlCmdFlag,
-                           const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                           const uint8_t u8_FrameSeqNumber,
-                           const uint8_t *pu8_Data, const uint16_t u16_DataSize);
+
+  void onTransferframeTcReceived(const bool b_BypassFlag, const bool b_CtrlCmdFlag,
+                                 const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
+                                 const uint8_t u8_FrameSeqNumber,
+                                 const uint8_t *pu8_Data, const uint16_t u16_DataSize) override;
+
   
 #if USE_CLTU_SUPPORT == 1
   void processCltu(const uint8_t *pu8_Data, const uint16_t u16_DataSize);
-  
-  static void StartOfTransmissionCallback(void *p_Context);
-  
-  static void CltuCallback(void *p_Context, const uint8_t *pu8_Data, const uint16_t u16_DataSize);
+
+  void onStartOfTransmission(void) override;
+  void onCltuDataReceived(const uint8_t *pu8_Data, const uint16_t u16_DataSize) override;
 #endif
   
 private:
   void _ctrlCmdUnlock(const uint8_t u8_VirtualChannelID);
   void _ctrlCmdSetV(const uint8_t u8_VirtualChannelID, const uint8_t u8_R);
   
-  void _TfTcCallback(const bool b_BypassFlag, const bool b_CtrlCmdFlag,
-                     const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                     const uint8_t u8_FrameSeqNumber,
-                     const uint8_t *pu8_Data, const uint16_t u16_DataSize);
-  
-#if USE_CLTU_SUPPORT == 1
-  void _StartOfTransmissionCallback(void);
-  void _CltuCallback(const uint8_t *pu8_Data, const uint16_t u16_DataSize);
-#endif
-  
-  
-  
   // Telemetry
-  
 public:  
   int32_t sendTm(const uint8_t u8_VirtualChannelID, const uint16_t u16_APID, const uint16_t u16_ApidSeqNr,
                  const uint8_t *pu8_Data, const uint16_t u16_DataSize);
@@ -182,7 +181,6 @@ public:
   
 private:
   void _setFrameSequenceNumber(const uint8_t mu8_TcFrameSeqNr);
-  
 };
 
 

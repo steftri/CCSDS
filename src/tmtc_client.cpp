@@ -32,21 +32,21 @@ using namespace CCSDS;
 
 
 TmTcClient::TmTcClient(const uint16_t *pu16_SCIDs, const uint8_t u8_NumberOfSCIDs,
-                       void *p_TfTmContext, TTfTmCallback *p_TfTmCallback,
-                       void *p_VC0SpContext, SpacePacket::TSpCallback *p_VC0SpCallback)
+                       TmActionInterface *p_TmActionInterface, 
+                       SpacePacketActionInterface *p_VC0TcActionInterface)
 {
   
   mu8_TmMCFC = 0;
   memset(mau8_TmVCFC, 0, sizeof(mau8_TmVCFC));
   
 #if USE_CLTU_SUPPORT == 1
-  m_Cltu.setCallbacks((void*)this, TmTcClient::StartOfTransmissionCallback,
-                      (void*)this, TmTcClient::CltuCallback);
+  m_Cltu.setActionInterface(this);
 #endif
   
-  m_TfTc.setCallback((void*)this, TmTcClient::TfTcCallback);
-  for(uint8_t i=0; i<MaxTcChannels; i++)
-    ma_Sp[i].setCallback((i==0)?p_VC0SpContext:NULL, (i==0)?p_VC0SpCallback:NULL);
+  m_TfTc.setActionInterface(this);
+  ma_Sp[0].setActionInterface(p_VC0TcActionInterface);
+  for(uint8_t i=1; i<MaxTcChannels; i++)
+    ma_Sp[i].setActionInterface(nullptr);
   
   for(uint8_t i=0; i<MaxTcChannels; i++)
   {
@@ -65,8 +65,7 @@ TmTcClient::TmTcClient(const uint16_t *pu16_SCIDs, const uint8_t u8_NumberOfSCID
   
   mu16_IdleSpSequenceCount=0;
   
-  mp_TfTmContext = p_TfTmContext;
-  mp_TfTmCallback = p_TfTmCallback;
+  mp_TmActionInterface = p_TmActionInterface;
   
   mu16_ScIdErrorCount = 0;  
   mu16_VirtualChannelErrorCount = 0;  
@@ -76,23 +75,21 @@ TmTcClient::TmTcClient(const uint16_t *pu16_SCIDs, const uint8_t u8_NumberOfSCID
 
 
 
-int32_t TmTcClient::setTmCallback(void *p_TfTmContext, TTfTmCallback *p_TfTmCallback)
+int32_t TmTcClient::setTmActionInterface(TmActionInterface *p_TmActionInterface)
 {
-  mp_TfTmContext = p_TfTmContext;
-  mp_TfTmCallback = p_TfTmCallback;
-  
+  mp_TmActionInterface = p_TmActionInterface;
   return 0;
 }
 
 
 
-int32_t TmTcClient::setTcCallback(const uint8_t u8_VirtualChannelID,
-                                  void *p_SpContext, SpacePacket::TSpCallback *p_SpCallback)
+int32_t TmTcClient::setTcActionInterface(const uint8_t u8_VirtualChannelID,
+                                  SpacePacketActionInterface *p_ActionInterface)
 {
   if(u8_VirtualChannelID>=MaxTcChannels)
     return -1;
   
-  ma_Sp[u8_VirtualChannelID].setCallback(p_SpContext, p_SpCallback);
+  ma_Sp[u8_VirtualChannelID].setActionInterface(p_ActionInterface);
   return 0;
 }
 
@@ -151,18 +148,9 @@ void TmTcClient::processTfTc(const uint8_t *pu8_Data, const uint16_t u16_DataSiz
 
 
 
-void TmTcClient::TfTcCallback(void *p_Context, const bool b_BypassFlag, const bool b_CtrlCmdFlag,
-                              const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                              const uint8_t u8_FrameSeqNumber,
-                              const uint8_t *pu8_Data, const uint16_t u16_DataSize)
-{
-  return reinterpret_cast<TmTcClient*>(p_Context)->_TfTcCallback(b_BypassFlag, b_CtrlCmdFlag,
-                                                                 u16_SpacecraftID, u8_VirtualChannelID, u8_FrameSeqNumber, pu8_Data, u16_DataSize);
-}
 
 
-
-void TmTcClient::_TfTcCallback(const bool b_BypassFlag, const bool b_CtrlCmdFlag,
+void TmTcClient::onTransferframeTcReceived(const bool b_BypassFlag, const bool b_CtrlCmdFlag,
                                const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
                                const uint8_t u8_FrameSeqNumber,
                                const uint8_t *pu8_Data, const uint16_t u16_DataSize)
@@ -274,25 +262,13 @@ void TmTcClient::processCltu(const uint8_t *pu8_Data, const uint16_t u16_DataSiz
 }
 
 
-void TmTcClient::StartOfTransmissionCallback(void *p_Context)
-{
-  return reinterpret_cast<TmTcClient*>(p_Context)->_StartOfTransmissionCallback();
-}
-
-
-void TmTcClient::_StartOfTransmissionCallback(void)
+void TmTcClient::onStartOfTransmission(void)
 {
   m_TfTc.setSync();
 }
 
 
-void TmTcClient::CltuCallback(void *p_Context, const uint8_t *pu8_Data, const uint16_t u16_DataSize)
-{
-  return reinterpret_cast<TmTcClient*>(p_Context)->_CltuCallback(pu8_Data, u16_DataSize);
-}
-
-
-void TmTcClient::_CltuCallback(const uint8_t *pu8_Data, const uint16_t u16_DataSize)
+void TmTcClient::onCltuDataReceived(const uint8_t *pu8_Data, const uint16_t u16_DataSize)
 {
   m_TfTc.process(pu8_Data, u16_DataSize);
 }
@@ -341,10 +317,10 @@ int32_t TmTcClient::sendTm(const uint8_t u8_VirtualChannelID, const uint16_t u16
                           mau16_SCIDs[0], 0, mu8_TmMCFC++, mau8_TmVCFC[u8_VirtualChannelID]++, 0,
                           mau8_TmSpBuffer, u32_SpPacketSize, u32_CLCW);
   
-  if(mp_TfTmCallback)
+  if(mp_TmActionInterface)
   {
-    mp_TfTmCallback(mp_TfTmContext, (uint8_t*)"\x1a\xcf\xfc\x1d", TF_SYNC_SIZE);
-    mp_TfTmCallback(mp_TfTmContext, mau8_TfTmBuffer, TM_TF_TOTAL_SIZE);
+    mp_TmActionInterface->onTmDataCreated((uint8_t*)"\x1a\xcf\xfc\x1d", TF_SYNC_SIZE);
+    mp_TmActionInterface->onTmDataCreated(mau8_TfTmBuffer, TM_TF_TOTAL_SIZE);
   }
   
   return 0;
@@ -372,10 +348,10 @@ int32_t TmTcClient::sendIdle(void)
   TransferframeTm::createIdle(mau8_TfTmBuffer, TM_TF_TOTAL_SIZE,
                               mau16_SCIDs[0], u8_VirtualChannelID, mu8_TmMCFC++, mau8_TmVCFC[u8_VirtualChannelID]++, u32_CLCW);
   
-  if(mp_TfTmCallback)
+  if(mp_TmActionInterface)
   {
-    mp_TfTmCallback(mp_TfTmContext, (uint8_t*)"\x1a\xcf\xfc\x1d", TF_SYNC_SIZE);
-    mp_TfTmCallback(mp_TfTmContext, mau8_TfTmBuffer, TM_TF_TOTAL_SIZE);
+    mp_TmActionInterface->onTmDataCreated((uint8_t*)"\x1a\xcf\xfc\x1d", TF_SYNC_SIZE);
+    mp_TmActionInterface->onTmDataCreated(mau8_TfTmBuffer, TM_TF_TOTAL_SIZE);
   }
   
   return 0;
