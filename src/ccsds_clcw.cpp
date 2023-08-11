@@ -12,6 +12,7 @@
 #include "ccsds_clcw.h"
 
 
+
 namespace CCSDS
 {
   
@@ -37,15 +38,16 @@ namespace CCSDS
     uint32_t u32_CLCW = 0;
     
     u32_CLCW = ((uint32_t)(ClcwVersionNumber&0x3)<<29)
-    | ((uint32_t)(u8_StatusField&0x7)<<26)
-    | ((uint32_t)(COPinEffect&0x3)<<24)
-    | ((uint32_t)(u8_VirtualChannelID&0x3f)<<18)
-    | ((b_NoRfAvail?1:0)<<15) | ((b_NoBitLock?1:0)<<14) | ((b_LockOut?1:0)<<13) | ((b_Wait?1:0)<<12) | ((b_Retransmit?1:0)<<11)
-    | ((uint32_t)(u8_FarmBCounter&0x3)<<9) | (uint32_t)(u8_ReportValue);
+      | ((uint32_t)(u8_StatusField&0x7)<<26)
+      | ((uint32_t)(COPinEffect&0x3)<<24)
+      | ((uint32_t)(u8_VirtualChannelID&0x3f)<<18)
+      | ((uint32_t)(b_NoRfAvail?1:0)<<15) | ((uint32_t)(b_NoBitLock?1:0)<<14) | ((uint32_t)(b_LockOut?1:0)<<13) | ((uint32_t)(b_Wait?1:0)<<12) | ((uint32_t)(b_Retransmit?1:0)<<11)
+      | ((uint32_t)(u8_FarmBCounter&0x3)<<9) | (uint32_t)(u8_ReportValue);
     
     return u32_CLCW;
   }
-  
+
+
   
   /**
    * @brief Extractes a Communications Link Control Word (CLCW) as described in CCSDS 232.0-B-3.
