@@ -158,7 +158,7 @@ public:
 
   void onTransferframeTcReceived(const bool b_BypassFlag, const bool b_CtrlCmdFlag,
                                  const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                                 const uint8_t u8_FrameSeqNumber,
+                                 const uint8_t u8_FrameSeqNumber, const uint8_t u8_MAP,
                                  const uint8_t *pu8_Data, const uint16_t u16_DataSize) override;
 
   

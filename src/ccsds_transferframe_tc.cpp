@@ -68,7 +68,7 @@ namespace CCSDS
   uint32_t TransferframeTc::create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
                                    const bool b_BypassFlag, const bool b_CtrlCmdFlag,
                                    const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                                   const uint8_t u8_FrameSeqNumber,
+                                   const uint8_t u8_FrameSeqNumber, const uint8_t u8_MAP,
                                    const uint8_t *pu8_Data, const uint16_t u16_DataSize)
   {
     uint16_t u16_AvailableDataSize;
@@ -76,13 +76,13 @@ namespace CCSDS
     uint16_t u16_CRC;
 #endif
     
-    if(!pu8_Buffer || (u32_BufferSize<PrimaryHdrSize+1+(UseFECF?FecfSize:0)))
+    if(!pu8_Buffer || (u32_BufferSize<PrimaryHdrSize+SegmentHdrSize+1+(UseFECF?FecfSize:0)))
       return 0;
     if((u16_DataSize==0) || !pu8_Data)
       return 0;
     
-    u16_AvailableDataSize=u32_BufferSize-PrimaryHdrSize-(UseFECF?FecfSize:0);
-    // printf("[createTC: used %i/%i; PrimHdrSize: %i]", u16_DataSize, u16_AvailableDataSize, PrimaryHdrSize);
+    u16_AvailableDataSize=u32_BufferSize-PrimaryHdrSize-SegmentHdrSize-(UseFECF?FecfSize:0);
+    // printf("[createTC: used %i/%i; HdrSize: %i]", u16_DataSize, u16_AvailableDataSize, PrimaryHdrSize+SegmentHdrSize);
     
     if(u16_DataSize>u16_AvailableDataSize)
       return 0;
@@ -91,19 +91,22 @@ namespace CCSDS
     _createPrimaryHeader(pu8_Buffer,
                          b_BypassFlag, b_CtrlCmdFlag,
                          u16_SpacecraftID, u8_VirtualChannelID,
-                         PrimaryHdrSize+u16_DataSize+(UseFECF?FecfSize:0)-1, u8_FrameSeqNumber);
+                         PrimaryHdrSize+SegmentHdrSize+u16_DataSize+(UseFECF?FecfSize:0)-1, u8_FrameSeqNumber);
+
+    // create segment header
+    _createSegmentHeader(&pu8_Buffer[PrimaryHdrSize], NoSegmentation, u8_MAP);
     
-    memcpy((char*)&pu8_Buffer[PrimaryHdrSize], pu8_Data, u16_DataSize);
+    memcpy((char*)&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize], pu8_Data, u16_DataSize);
     if(u16_AvailableDataSize>u16_DataSize)
-      memset((char*)&pu8_Buffer[PrimaryHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
+      memset((char*)&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
     
 #if TF_USE_FECF == 1
-    u16_CRC = Transferframe::calcCRC(pu8_Buffer, PrimaryHdrSize+u16_DataSize);
-    pu8_Buffer[PrimaryHdrSize+u16_DataSize]   = (uint8_t)(u16_CRC>>8);
-    pu8_Buffer[PrimaryHdrSize+u16_DataSize+1] = (uint8_t)(u16_CRC&0xff);
+    u16_CRC = Transferframe::calcCRC(pu8_Buffer, PrimaryHdrSize+SegmentHdrSize+u16_DataSize);
+    pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize]   = (uint8_t)(u16_CRC>>8);
+    pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize+1] = (uint8_t)(u16_CRC&0xff);
 #endif
     
-    return PrimaryHdrSize+u16_DataSize+(UseFECF?FecfSize:0);
+    return PrimaryHdrSize+SegmentHdrSize+u16_DataSize+(UseFECF?FecfSize:0);
   }
   
   
@@ -117,13 +120,18 @@ namespace CCSDS
     pu8_Buffer[1] = (uint8_t)(u16_SpacecraftID&0xFF);
     pu8_Buffer[2] = (uint8_t)(((u8_VirtualChannelID&0x3F)<<2) | ((u16_FrameLength>>8)&0x03));
     pu8_Buffer[3] = (uint8_t)(u16_FrameLength&0xff);
-    pu8_Buffer[4] = u8_FrameSeqNumber;
-    
-    return 0;
+    pu8_Buffer[4] = u8_FrameSeqNumber;  
+
+    return 5;
   }
   
   
-  
+  int32_t TransferframeTc::_createSegmentHeader(uint8_t *pu8_Buffer, const enum ESeqFlags e_SeqFlags, const uint8_t u8_MAP)
+  {
+    pu8_Buffer[0] = (uint8_t)((e_SeqFlags)<<6) | (u8_MAP&0x3f);
+    
+    return 1;
+  }  
   
   
   inline uint16_t TransferframeTc::_getMaxTfSize(void)
@@ -156,20 +164,21 @@ namespace CCSDS
     uint16_t u16_SpacecraftID;
     uint8_t u8_VirtualChannelID;
     uint8_t u8_FrameSeqNumber;
+    uint8_t u8_MAP;
     
     b_BypassFlag = (mau8_Buffer[0]&0x20)?true:false;
     b_CtrlCmdFlag = (mau8_Buffer[0]&0x10)?true:false;
     u16_SpacecraftID = (uint16_t)((mau8_Buffer[0]&0x03)<<8) | (uint16_t)mau8_Buffer[1];
     u8_VirtualChannelID = (uint8_t)((mau8_Buffer[2]&0xFC)>>2);
     u8_FrameSeqNumber = mau8_Buffer[4];
-    
+    u8_MAP = mau8_Buffer[5]&0x3F;
     
     if(mp_ActionInterface)
     {
       mp_ActionInterface->onTransferframeTcReceived(b_BypassFlag, b_CtrlCmdFlag,
                                                     u16_SpacecraftID, u8_VirtualChannelID,
-                                                    u8_FrameSeqNumber,
-                                                    &mau8_Buffer[PrimaryHdrSize], (mu16_FrameLength+1)-PrimaryHdrSize-(UseFECF?FecfSize:0));
+                                                    u8_FrameSeqNumber, u8_MAP,
+                                                    &mau8_Buffer[PrimaryHdrSize+SegmentHdrSize], (mu16_FrameLength+1)-PrimaryHdrSize-SegmentHdrSize-(UseFECF?FecfSize:0));
     }
     return 0;
   }

@@ -36,13 +36,6 @@
 #define TC_TF_MAX_SIZE 508
 #endif
 
-#ifdef configTC_TF_PRIM_HEADER_SIZE
-#define TC_TF_PRIM_HEADER_SIZE configTC_TF_PRIM_HEADER_SIZE
-#else
-#define TC_TF_PRIM_HEADER_SIZE 5
-#endif
-
-
 
 #include "ccsds_transferframe.h"
 
@@ -70,12 +63,13 @@ namespace CCSDS
      * @param u16_SpacecraftID    The target spacecraft ID
      * @param u8_VirtualChannelID The virtual channel ID
      * @param u8_FrameSeqNumber   The virtual channel specific frame sequence number
+     * @param u8_MAP              The multiplexer access point identifier
      * @param pu8_Data            A pointer to the data block which holds the content of the package
      * @param u16_DataSize        The size of the data block in bytes
      */
     virtual void onTransferframeTcReceived(const bool b_BypassFlag, const bool b_CtrlCmdFlag,
                                            const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                                           const uint8_t u8_FrameSeqNumber,
+                                           const uint8_t u8_FrameSeqNumber, const uint8_t u8_MAP,
                                            const uint8_t *pu8_Data, const uint16_t u16_DataSize) = 0;
   };
 
@@ -109,11 +103,20 @@ namespace CCSDS
   {
   private:
     const static int TcTfVersionNumber = 0;
-    const static uint8_t PrimaryHdrSize = TC_TF_PRIM_HEADER_SIZE;
+    const static uint8_t PrimaryHdrSize = 5;
+    const static uint8_t SegmentHdrSize = 1;
     const static uint16_t MaxTfSize = TC_TF_MAX_SIZE;
     uint8_t mau8_Buffer[MaxTfSize];
     
     TransferframeTcActionInterface *mp_ActionInterface;
+
+    enum ESeqFlags 
+    {
+      FirstPortion = 0x1, 
+      ContinuingPortion = 0x0,
+      LastPortion = 0x2, 
+      NoSegmentation = 0x3
+    };
     
   public:
     TransferframeTc(TransferframeTcActionInterface *p_ActionInterface = nullptr);
@@ -124,7 +127,7 @@ namespace CCSDS
     static uint32_t create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
                            const bool b_BypassFlag, const bool b_CtrlCmdFlag,
                            const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                           const uint8_t u8_FrameSeqNumber,
+                           const uint8_t u8_FrameSeqNumber, const uint8_t u8_MAP,
                            const uint8_t *pu8_Data, const uint16_t u16_DataSize);
     
   private:
@@ -132,6 +135,8 @@ namespace CCSDS
                                         const bool b_BypassFlag, const bool b_CtrlCmdFlag,
                                         const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
                                         const uint16_t u16_FrameLength, const uint8_t u8_FrameSeqNumber);
+
+    static int32_t _createSegmentHeader(uint8_t *pu8_Buffer, const enum ESeqFlags e_SeqFlags, const uint8_t u8_MAP);
     
     int32_t _processFrame(void);
     

@@ -17,9 +17,6 @@
 /** The Frame Error Control Field (FECF) contains the CRC of telemetry packets */
 #define configTF_USE_FECF            1
 
-/** standard primary header size according to the standard is 5, but TET1 uses 6 byte headers */
-#define configTC_TF_PRIM_HEADER_SIZE 6  
-
 /** the maximum number of spacecraft IDs which can be checked by tmtc client */
 #define configTMTC_MAX_SCIDS         2  
 
@@ -28,7 +25,7 @@
 
 #ifndef configUSE_CLTU_SUPPORT             // this is needed for test cases
 /** CLTUs are used to syncronize to the uplink data stream. On TET1, this is done by hardware. */
-# define configUSE_CLTU_SUPPORT       0
+# define configUSE_CLTU_SUPPORT       1
 #endif
 
 /** The CLTU sequence must eb able to hold the whole Transferframe for uplink 
