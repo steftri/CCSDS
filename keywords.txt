@@ -8,8 +8,6 @@ TransferframeTm	KEYWORD1
 TransferframeTc	KEYWORD1
 SpacePacket	KEYWORD1
 Clcw	KEYWORD1
-TmTcClient	KEYWORD1
-TmTcControl	KEYWORD1
 
 
 # Methods and Functions (KEYWORD2)
@@ -43,38 +41,6 @@ clearErrorCounters	KEYWORD2
 # Clcw
 create	KEYWORD2
 extract	KEYWORD2
-
-# TmTcClient
-setTmCallback	KEYWORD2
-setTcCallback	KEYWORD2
-getScIdErrorCount	KEYWORD2
-getVirtualChannelErrorCount	KEYWORD2
-getRetransmitErrorCount	KEYWORD2
-getLockoutErrorCount	KEYWORD2
-clearErrorCounters	KEYWORD2
-setSync	KEYWORD2
-processTfTc	KEYWORD2
-TfTcCallback	KEYWORD2
-processCltu	KEYWORD2
-CltuCallback	KEYWORD2
-sendTm	KEYWORD2
-sendIdle	KEYWORD2
-
-# TmTcControl
-setSCIDs	KEYWORD2
-setTcCallback	KEYWORD2
-setTmOcfCallback	KEYWORD2
-setTmCallback	KEYWORD2
-getTmScIdErrorCount	KEYWORD2
-getTmMCFCErrorCount	KEYWORD2
-getTmVCFCErrorCount	KEYWORD2
-getTmSyncErrorCount	KEYWORD2
-getTmChecksumErrorCount	KEYWORD2
-getTmOverflowErrorCount	KEYWORD2
-clearErrorCounters	KEYWORD2
-processTfTm	KEYWORD2
-sendTc	KEYWORD2
-sendInitAD	KEYWORD2
 
 # Instances (KEYWORD2)
 
