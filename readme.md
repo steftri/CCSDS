@@ -22,9 +22,7 @@ g_TmTcClient.processCltu((uint8_t*)gau8_Tc, sizeof(gau8_Tc));
 Limitations of Transferframes (Telemetry):                                                 
 * The TM secondary header is not supported                 
 * Randomization is not supported
-  
-Limitations of Transferframes (Telecommand):         
-* The TC segment header is not supported    
+ 
   
 Limitations of Space Packets:
 * CCSDS secondary header format is not supportd 
@@ -38,10 +36,6 @@ Limitations of Space Packets:
 
 
 ## Files & Configuration
-
-* `tmtc_client.h`:  Contains the references to the protocol includes 
-
-
 
 
 

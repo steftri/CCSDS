@@ -17,6 +17,9 @@
 /** The Frame Error Control Field (FECF) contains the CRC of telemetry packets */
 #define configTF_USE_FECF            1
 
+/** The Segment Header contains the Multiplexer Access Point (MAP) */
+#define configTF_TC_USE_SEG_HDR      1
+
 /** the maximum number of spacecraft IDs which can be checked by tmtc client */
 #define configTMTC_MAX_SCIDS         2  
 

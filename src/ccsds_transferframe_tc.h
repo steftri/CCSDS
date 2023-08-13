@@ -5,7 +5,7 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2023 Stefan Trippler.  All rights reserved.
  */
 
 #ifndef _CCSDS_TRANSFERFRAME_TC_H_
@@ -104,8 +104,11 @@ namespace CCSDS
   private:
     const static int TcTfVersionNumber = 0;
     const static uint8_t PrimaryHdrSize = 5;
-    const static uint8_t SegmentHdrSize = 1;
+    const static uint8_t SegmentHdrSize = (configTF_TC_USE_SEG_HDR)?1:0;
     const static uint16_t MaxTfSize = TC_TF_MAX_SIZE;
+
+    const static bool UseSegHdr = (configTF_TC_USE_SEG_HDR)?true:false;  // Frame error control field (CRC)
+
     uint8_t mau8_Buffer[MaxTfSize];
     
     TransferframeTcActionInterface *mp_ActionInterface;

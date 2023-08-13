@@ -87,6 +87,7 @@ namespace PUS
    * @param u8_SourceID           The source ID of the command
    * @param pu8_Data              Command data (parameters)
    * @param u32_DataSize          The size of the command data
+   * @param e_ChecksumType        The checksum algorithm
    *
    * @retval 0  No packet could be created
    * @return The size of the created data (without header)
@@ -96,7 +97,8 @@ namespace PUS
                       const bool b_AckAcc, const bool b_AckStart, const bool b_AckProg, const bool b_AckComp,
                       const uint8_t u8_Service, const uint8_t u8_SubService,
                       const uint8_t u8_SourceID,
-                      const uint8_t *pu8_Data, const uint32_t u32_DataSize)
+                      const uint8_t *pu8_Data, const uint32_t u32_DataSize, 
+                      const enum ChecksumType e_ChecksumType)
   {
     if(!pu8_SecHdrBuffer || (u32_SecHdrSize<MinSecHdrSize))
       return 0;
@@ -170,7 +172,7 @@ namespace PUS
   
   
   
-  uint16_t Tc::_calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize)
+  uint16_t Tc::calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize)
   {
     uint16_t u16_Syndrome=0xffff;
     uint8_t u8_Data;
@@ -193,5 +195,17 @@ namespace PUS
     }
     return (u16_Syndrome);
   }
-  
+
 }
+
+
+
+
+
+
+
+
+
+
+
+

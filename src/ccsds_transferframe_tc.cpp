@@ -94,8 +94,9 @@ namespace CCSDS
                          PrimaryHdrSize+SegmentHdrSize+u16_DataSize+(UseFECF?FecfSize:0)-1, u8_FrameSeqNumber);
 
     // create segment header
-    _createSegmentHeader(&pu8_Buffer[PrimaryHdrSize], NoSegmentation, u8_MAP);
-    
+    if(UseSegHdr)
+      _createSegmentHeader(&pu8_Buffer[PrimaryHdrSize], NoSegmentation, u8_MAP);
+
     memcpy((char*)&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize], pu8_Data, u16_DataSize);
     if(u16_AvailableDataSize>u16_DataSize)
       memset((char*)&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
@@ -165,13 +166,16 @@ namespace CCSDS
     uint8_t u8_VirtualChannelID;
     uint8_t u8_FrameSeqNumber;
     uint8_t u8_MAP;
+    uint8_t *pu8_PrimaryHeader=mau8_Buffer;
+    uint8_t *pu8_SegmentHeader=&mau8_Buffer[PrimaryHdrSize];
     
-    b_BypassFlag = (mau8_Buffer[0]&0x20)?true:false;
-    b_CtrlCmdFlag = (mau8_Buffer[0]&0x10)?true:false;
-    u16_SpacecraftID = (uint16_t)((mau8_Buffer[0]&0x03)<<8) | (uint16_t)mau8_Buffer[1];
-    u8_VirtualChannelID = (uint8_t)((mau8_Buffer[2]&0xFC)>>2);
-    u8_FrameSeqNumber = mau8_Buffer[4];
-    u8_MAP = mau8_Buffer[5]&0x3F;
+    b_BypassFlag = (pu8_PrimaryHeader[0]&0x20)?true:false;
+    b_CtrlCmdFlag = (pu8_PrimaryHeader[0]&0x10)?true:false;
+    u16_SpacecraftID = (uint16_t)((pu8_PrimaryHeader[0]&0x03)<<8) | (uint16_t)pu8_PrimaryHeader[1];
+    u8_VirtualChannelID = (uint8_t)((pu8_PrimaryHeader[2]&0xFC)>>2);
+    u8_FrameSeqNumber = pu8_PrimaryHeader[4];
+
+    u8_MAP = UseSegHdr?(pu8_SegmentHeader[0]&0x3F):0x00;
     
     if(mp_ActionInterface)
     {

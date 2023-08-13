@@ -76,6 +76,12 @@ namespace PUS
       Custom = 0,
       CCSDS = 1
     };
+
+    enum ChecksumType
+    {
+      None = 0, 
+      StandardCRC = 1 // generator polynomial: g(x) = x^16 +x^12 + x^5 +1:
+    };
     
     enum Service
     {
@@ -116,7 +122,8 @@ namespace PUS
                            const bool b_AckAcc, const bool b_AckStart, const bool b_AckProg, const bool b_AckComp,
                            const uint8_t u8_Service, const uint8_t u8_SubService,
                            const uint8_t u8_SourceID,
-                           const uint8_t *pu8_Data, const uint32_t u32_DataSize);
+                           const uint8_t *pu8_Data, const uint32_t u32_DataSize,
+                           const enum ChecksumType e_ChecksumType = ChecksumType::StandardCRC);
     
     // sp processing
     int32_t process(const uint8_t *pu8_Buffer, const uint32_t u32_BufferSize);
@@ -128,7 +135,7 @@ namespace PUS
                                             const uint8_t u8_SourceID, const uint16_t u16_Spare);
     
   public:
-    static uint16_t _calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize);
+    static uint16_t calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize);
   };
   
 }

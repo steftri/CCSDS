@@ -6,7 +6,7 @@
  * @author    Stefan Trippler
  * @date      2022-04-03
  *
- * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2023 Stefan Trippler.  All rights reserved.
  */
 
 #ifndef _CCSDS_CLCW_H_
