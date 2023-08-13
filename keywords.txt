@@ -1,0 +1,47 @@
+# Syntax Coloring Map For CCSDS
+# https://arduino.github.io/arduino-cli/library-specification/#keywords
+# Formatted by a single true tab (not spaces)
+
+# Datatypes (KEYWORD1)
+Cltu	KEYWORD1
+TransferframeTm	KEYWORD1
+TransferframeTc	KEYWORD1
+SpacePacket	KEYWORD1
+Clcw	KEYWORD1
+
+
+# Methods and Functions (KEYWORD2)
+# Cltu
+setCallbacks	KEYWORD2
+create	KEYWORD2
+process	KEYWORD2
+
+# TransferframeTm / TransferframeTc
+setSync	KEYWORD2
+process	KEYWORD2
+getSyncErrorCount	KEYWORD2
+getChecksumErrorCount	KEYWORD2
+getOverflowErrorCount	KEYWORD2
+clearErrorCounters	KEYWORD2
+setCallback	KEYWORD2
+create	KEYWORD2
+createIdle	KEYWORD2
+
+# SpacePackets
+setCallback	KEYWORD2
+create	KEYWORD2
+create	KEYWORD2
+createIdle	KEYWORD2
+process	KEYWORD2
+reset	KEYWORD2
+getSyncErrorCount	KEYWORD2
+getOverflowErrorCount	KEYWORD2
+clearErrorCounters	KEYWORD2
+
+# Clcw
+create	KEYWORD2
+extract	KEYWORD2
+
+# Instances (KEYWORD2)
+
+# Constants (LITERAL1)
