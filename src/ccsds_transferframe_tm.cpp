@@ -209,10 +209,9 @@ namespace CCSDS
     return PrimaryHdrSize;
   }
   
-  inline void TransferframeTm::_getFrameLength(void)
+  inline uint16_t TransferframeTm::_getFrameLength(void)
   {
-    mu16_FrameLength=TfSize-1;
-    // cout << "[" << mu16_FrameLength << "]";
+    return TfSize-1;
   }
   
   
@@ -220,7 +219,7 @@ namespace CCSDS
   
   
   
-  int32_t TransferframeTm::_processFrame(void)
+  void TransferframeTm::_processFrame(void)
   {
     uint16_t u16_SpacecraftID;
     uint8_t  u8_VirtualChannelID;
@@ -256,7 +255,6 @@ namespace CCSDS
                     &mau8_Buffer[PrimaryHdrSize], TM_TF_TOTAL_SIZE-PrimaryHdrSize-((UseOCF&&b_OcfFlag)?OcfSize:0)-(UseFECF?FecfSize:0),
                     u32_OCF);
     }
-    return 0;
   }
   
   

@@ -81,7 +81,7 @@ namespace CCSDS
       pu8_Buffer[u16_WritePos+DataBlockSize]=calcCRC(&pu8_Buffer[u16_WritePos], DataBlockSize);
       u16_WritePos+=(DataBlockSize+CRCSize);
     }
-    memset(&pu8_Buffer[u16_WritePos], 0x55, DataBlockSize);
+    memset(&pu8_Buffer[u16_WritePos], 0xC5, DataBlockSize);
     pu8_Buffer[u16_WritePos+DataBlockSize]=0x79;
     
     return u16_WritePos+DataBlockSize+CRCSize;

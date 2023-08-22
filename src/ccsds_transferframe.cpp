@@ -135,7 +135,7 @@ namespace CCSDS
       {
         //  cout << 'H';
         //displaybuffer(pu8_Buffer, u16_PrimaryHdrSize);
-        _getFrameLength();
+        mu16_FrameLength = _getFrameLength();
         if(mu16_FrameLength+1>_getMaxTfSize())
         {
           mb_Sync=false;

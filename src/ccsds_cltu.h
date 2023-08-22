@@ -11,6 +11,17 @@
 #ifndef _CCSDS_CLTU_H_
 #define _CCSDS_CLTU_H_
 
+/****************************************************************/
+/* CLTUs according to                                           */
+/*                                                              */
+/*  - CCSDS 231.0-B-3 - TC Synchronization and Channel Coding   */
+/*    https://public.ccsds.org/Pubs/231x0b3s.pdf                */
+/*                                                              */
+/* Limitations:                                                 */ 
+/*  - Low-Density Parity-Check (LDPC) is not supported          */
+/*                                                              */
+/****************************************************************/
+
 #include <inttypes.h>
 
 
@@ -19,6 +30,9 @@
 #else
 #define CLTU_MAX_SIZE (2+((TC_TF_MAX_SIZE+6)/7)*8+8)
 #endif
+
+
+#define CLTU_DATA_BLOCK_SIZE 7
 
 
 namespace CCSDS
@@ -65,12 +79,12 @@ namespace CCSDS
   {
   private:
     const static uint8_t StartSequenceSize = 2;
-    const static uint8_t DataBlockSize = 7;
+    const static uint8_t DataBlockSize = CLTU_DATA_BLOCK_SIZE;
     const static uint8_t CRCSize = 1;
     const static uint8_t TailSquenceSize = 8;
     
     bool mb_Sync;
-    uint8_t mau8_Buffer[DataBlockSize];
+    uint8_t mau8_Buffer[CLTU_DATA_BLOCK_SIZE];
     uint8_t mu8_Index;
     
     CltuActionInterface *mp_ActionInterface;

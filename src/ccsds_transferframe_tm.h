@@ -113,11 +113,11 @@ namespace CCSDS
   class TransferframeTm : public Transferframe
   {    
   private:
-    static const int TmTfVersionNumber = 0;
+    const static int TmTfVersionNumber = 0;
     const static uint8_t PrimaryHdrSize = 6;
     const static uint8_t OcfSize = 4;
     const static uint16_t TfSize = TM_TF_TOTAL_SIZE;
-    uint8_t mau8_Buffer[TfSize];
+    uint8_t mau8_Buffer[TM_TF_TOTAL_SIZE];
     
     const static bool UseOCF = (TF_USE_OCF)?true:false;  // Operational Control Field (CLCW)
     
@@ -149,13 +149,12 @@ namespace CCSDS
                                         const bool b_TFSecHdrFlag, const bool b_SyncFlag, const bool b_PacketOrderFlag,
                                         const uint8_t u8_SegLengthID, const uint16_t u16_FirstHdrPtr);
     
-    int32_t _processFrame(void);
-    
   private:
-    inline uint16_t _getMaxTfSize(void);
-    inline uint8_t *_getTfBufferAddr(void);
-    inline uint16_t _getPrimaryHeaderSize(void);
-    inline void _getFrameLength(void);
+    void _processFrame(void) override;
+    inline uint16_t _getMaxTfSize(void) override;
+    inline uint8_t *_getTfBufferAddr(void) override;
+    inline uint16_t _getPrimaryHeaderSize(void) override;
+    inline uint16_t _getFrameLength(void) override;
   };
   
 }

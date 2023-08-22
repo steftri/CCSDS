@@ -150,15 +150,14 @@ namespace CCSDS
     return PrimaryHdrSize;
   }
   
-  inline void TransferframeTc::_getFrameLength(void)
+  inline uint16_t TransferframeTc::_getFrameLength(void)
   {
-    mu16_FrameLength=(((uint16_t)(mau8_Buffer[2]&0x3)<<8) | (uint16_t)mau8_Buffer[3]);
-    // cout << "[" << mu16_FrameLength << "]";
+    return (((uint16_t)(mau8_Buffer[2]&0x3)<<8) | (uint16_t)mau8_Buffer[3]);
   }
   
   
   
-  int32_t TransferframeTc::_processFrame(void)
+  void TransferframeTc::_processFrame(void)
   {
     bool b_BypassFlag;
     bool b_CtrlCmdFlag;
@@ -184,7 +183,6 @@ namespace CCSDS
                                                     u8_FrameSeqNumber, u8_MAP,
                                                     &mau8_Buffer[PrimaryHdrSize+SegmentHdrSize], (mu16_FrameLength+1)-PrimaryHdrSize-SegmentHdrSize-(UseFECF?FecfSize:0));
     }
-    return 0;
   }
   
   

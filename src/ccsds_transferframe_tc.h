@@ -105,11 +105,11 @@ namespace CCSDS
     const static int TcTfVersionNumber = 0;
     const static uint8_t PrimaryHdrSize = 5;
     const static uint8_t SegmentHdrSize = (configTF_TC_USE_SEG_HDR)?1:0;
-    const static uint16_t MaxTfSize = TC_TF_MAX_SIZE;
-
+  
     const static bool UseSegHdr = (configTF_TC_USE_SEG_HDR)?true:false;  // Frame error control field (CRC)
 
-    uint8_t mau8_Buffer[MaxTfSize];
+    const static uint16_t MaxTfSize = TC_TF_MAX_SIZE;
+    uint8_t mau8_Buffer[TC_TF_MAX_SIZE];
     
     TransferframeTcActionInterface *mp_ActionInterface;
 
@@ -140,14 +140,13 @@ namespace CCSDS
                                         const uint16_t u16_FrameLength, const uint8_t u8_FrameSeqNumber);
 
     static int32_t _createSegmentHeader(uint8_t *pu8_Buffer, const enum ESeqFlags e_SeqFlags, const uint8_t u8_MAP);
-    
-    int32_t _processFrame(void);
-    
+        
   private:
-    inline uint16_t _getMaxTfSize(void);
-    inline uint8_t *_getTfBufferAddr(void);
-    inline uint16_t _getPrimaryHeaderSize(void);
-    inline void _getFrameLength(void);
+    void _processFrame(void) override;
+    inline uint16_t _getMaxTfSize(void) override;
+    inline uint8_t *_getTfBufferAddr(void) override;
+    inline uint16_t _getPrimaryHeaderSize(void) override;
+    inline uint16_t _getFrameLength(void) override;
   };
     
 }

@@ -75,17 +75,17 @@ namespace CCSDS
     uint16_t getOverflowErrorCount(void);
     void clearErrorCounters(void);
     
-  public:
+  protected:
     Transferframe(void);
     bool _checkCRC(void);
     static uint16_t calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize);
     
   private:
+    virtual void _processFrame(void) = 0;
     virtual uint16_t _getMaxTfSize(void) = 0;
     virtual uint8_t *_getTfBufferAddr(void) = 0;
     virtual uint16_t _getPrimaryHeaderSize(void) = 0;
-    virtual void _getFrameLength(void) = 0;
-    virtual int32_t _processFrame(void) = 0;
+    virtual uint16_t _getFrameLength(void) = 0;
   };
   
   
