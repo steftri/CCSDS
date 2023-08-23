@@ -84,7 +84,7 @@ namespace CCSDS
      * @param pu8_PacketData      A pointer to the data block which holds the content of the package
      * @param u16_PacketDataLength The size of the data block in bytes
      */
-    virtual void onSpacePacketReceived(const ESpacePacketType u8_PacketType,
+    virtual void onSpacePacketReceived(const ESpacePacketType e_PacketType,
                                        const ESpacePacketSequenceFlags e_SequenceFlags, const uint16_t u16_APID,
                                        const uint16_t u16_SequenceCount, const bool b_SecHeader,
                                        const uint8_t *pu8_PacketData, const uint16_t u16_PacketDataLength) = 0;

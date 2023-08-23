@@ -33,6 +33,7 @@ namespace PUS
   /**
    * @brief Construct a new PUS TC object
    *
+   * @param u8_SecHdrSize       The size of the secondary header (default is 5)
    * @param p_ActionInterface   A pointer to the implementation of the action interface
    */
   Tc::Tc(const uint8_t u8_SecHdrSize, TcActionInterface *p_ActionInterface)
