@@ -37,13 +37,7 @@ TODO
 
 ## API
 
-### Setup
-
-TODO
-
-### Operation
-
-TODO
+See ![Doxygen doc](doc/html/)
 
 
 ## Diagrams
