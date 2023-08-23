@@ -59,7 +59,8 @@ namespace CCSDS
    * @param u16_SpacecraftID    The spacecraft ID which is used for this package (12 bit)
    * @param u8_VirtualChannelID The virtual channel which is used for this package (0 up to 63)
    * @param u8_FrameSeqNumber   The channel-specific frame sequence number, must be increased externally
-   * @param u8_MAP              The MAP channel within the virtual channel (can be used to select redundant satellite computers)
+   * @param u8_MAP              The MAP channel within the virtual channel (can be used for priorization or 
+   *                            to select redundant satellite computers)
    * @param pu8_Data            A pointer to the data block which shall be wrapped
    * @param u16_DataSize        The size of the data block in bytes
    *
