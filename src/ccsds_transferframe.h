@@ -87,8 +87,7 @@ namespace CCSDS
     virtual uint16_t _getPrimaryHeaderSize(void) = 0;
     virtual uint16_t _getFrameLength(void) = 0;
   };
-  
-  
+
 }
 
 #endif // _CCSDS_TRANSFERFRAME_H_

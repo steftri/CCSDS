@@ -4,7 +4,6 @@
  * @brief     Include file of the Communications Link Control Word (CLCW) class
  *
  * @author    Stefan Trippler
- * @date      2022-04-03
  *
  * @copyright Copyright (C) 2021-2023 Stefan Trippler.  All rights reserved.
  */

@@ -72,6 +72,28 @@ TODO
 TODO
 
 
+
+### Sequence Diagram for CLTU extraction on the spacecraft
+
+![Class Diagram CLTU](doc/sequence_diagram_cltu.png)
+
+
+### Sequence Diagram for TC TransferFrame extraction on the spacecraft
+
+![Class Diagram Transferframe TC](doc/sequence_diagram_transferframe_tc.png)
+
+
+### Sequence Diagram for TM TransferFrame extraction on the ground
+
+![Class Diagram Transferframe TM](doc/sequence_diagram_transferframe_tm.png)
+
+
+### Sequence Diagram for SpacePacket extraction
+
+![Class Diagram Spacepacket](doc/sequence_diagram_spacepacket.png)
+
+
+
 ## API
 
 See ![Doxygen doc](doc/html/)
@@ -104,14 +126,12 @@ The Transferframe Operational Control Field (OCF) can carry the Communications L
 ![Class Diagram CLCW](doc/class_diagram_clcw.png)
 
 
+
 ## Limitations
 
 Limitations of Transferframes (Telemetry):                                                 
 * The TM secondary header is not supported                 
 * Randomization is not supported
-
-Limitations of SpacePackets:
-* CCSDS secondary header format is not supported 
 
 
 ## Known Anomalies
