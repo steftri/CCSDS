@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.7"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>CCSDS: Main Page</title>
+<title>CCSDS: CCSDS</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -40,15 +40,12 @@ $(function() {
 <div id="main-nav"></div>
 </div><!-- top -->
 <div><div class="header">
-  <div class="headertitle"><div class="title">Main Page </div></div>
+  <div class="headertitle"><div class="title">CCSDS </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="mainpage"></a></p>
-<h1><a class="anchor" id="ccsds"></a>
-CCSDS</h1>
-<p>This is an implementation of a CCSDS compliant Transferframe and SpacePacket library as used in Satellites for transferring telecommands and data from ground to the satellite and telemetry from satellite to ground.</p>
-<h2><a class="anchor" id="features"></a>
-Features</h2>
+<div class="textblock"><p><a class="anchor" id="md__c_1_2_projects_2steftri_2_c_c_s_d_s__dev_2lib_2_c_c_s_d_s_2readme"></a> This is an implementation of a CCSDS compliant Transferframe and SpacePacket library as used in Satellites for transferring telecommands and data from ground to the satellite and telemetry from satellite to ground.</p>
+<h1><a class="anchor" id="features"></a>
+Features</h1>
 <ul>
 <li>synchronisation mechanism</li>
 <li>data error detection</li>
@@ -56,89 +53,89 @@ Features</h2>
 <li>suitable for command and data transfer</li>
 <li>virtual channels for addressing multiple receivers via one physical channel</li>
 </ul>
-<h2><a class="anchor" id="short-protocol-overview"></a>
-Short Protocol Overview</h2>
+<h1><a class="anchor" id="short-protocol-overview"></a>
+Short Protocol Overview</h1>
 <p>First of all, the Consultative Committee for Space Data Systems (CCSDS) is an international organisation founded to establish common communication protocols for spacecrafts (rockets, space ships, satellites, ...) to be able to share ground stations and mission control systems.</p>
 <p>The protocols are described starting from the low level to the high level.</p>
-<h3><a class="anchor" id="cltus"></a>
-CLTUs</h3>
+<h2><a class="anchor" id="cltus"></a>
+CLTUs</h2>
 <p>The lowest logical protocol on top of the physical layer is the Communications Link Transmission Unit (CLTU) protocol, described in the standard CCSDS 231.0 - TC synchronization and channel coding. The standard itself is available on the CCSDS web site: <a href="http://www.ccsds.org">http://www.ccsds.org</a>.</p>
 <p>CLTUs are used for transmission from ground to the spacecraft (uplink) when bit flips can occcur.</p>
 <p>With this protocol, The transmission is started by a 2-byte start sequence. After that, several "BCH codewords" are sent, containing 7 data bytes plus 1 error control byte. The transmission is ended by a predefined 8-byte sequence.</p>
 <p>Usually the CLTU decoding on a real spacecraft is done by hardware. But in case there is no hardware decoding mechanism, the software implemenation can be used.</p>
 <p>For downlink, usually no CLTUs are used. There is also no need for using CLTUs if the underlaying data connection is reliable. <br  />
 </p>
-<h3><a class="anchor" id="transferframes-for-uplink"></a>
-Transferframes for uplink</h3>
+<h2><a class="anchor" id="transferframes-for-uplink"></a>
+Transferframes for uplink</h2>
 <p>Transfer frames for uplink from the ground to the spacecraft are described in the standard CCSDS 232.0 - TC space data link protocol. They are used to address the spacecraft, to ensure the reception of all data packets (without gaps), to establish a data flow mechanism and to separare one physical communication connection into logical data channels. They are optionally embedded in CLTUs.</p>
 <p>For uplink, the transfer frames have different sizes, depending from its content.</p>
-<h3><a class="anchor" id="transferframes-for-downlink"></a>
-Transferframes for downlink</h3>
+<h2><a class="anchor" id="transferframes-for-downlink"></a>
+Transferframes for downlink</h2>
 <p>Transfer frames for downlink are described in the standard CCSDS 132.0 - TM Space Data Link Protocol. They have a fixed size (for example 508 bytes) and are used to transfer mainly telemetry data from different sources within the spacecraft to the ground using virtual channels.</p>
 <p>For example, the real-time telemetry can use the virtual channel 0, recorded historical telemetry can use virtual channel 1, and payload data can be sent via other virtual channels.</p>
 <p>The transfer frame can also include an Operational Control Field (OCF), which usually holds the Communications Link Control Word (CLCW) used for flow control.</p>
 <p>Usually, each downlink transferframe is sent after a synchronization pattern, which is described in the standard 131.b - TM Synchronization and Channel Coding in detail. On spacecrafts, usually everytime transfer frames are sent. If no transferframe with data is ready for beeing sent, an idle transferframe is sent on virtual channel 7 instead. <br  />
 </p>
-<h3><a class="anchor" id="spacepackets"></a>
-SpacePackets</h3>
+<h2><a class="anchor" id="spacepackets"></a>
+SpacePackets</h2>
 <p>SpacePackets are described in the standard CCSDS 133.0 - Space Packet Protocol. They are used to structurize the data in up- and downlink.</p>
 <p>Each spacepacket has an application ID, which is responsible for the interpretation of the content. For example, the APID 0x48 can be used to identify housekeeping data from the satellite. Also for uplink there are usually several applications responsible for different tasks. The spacepackets can have different sizes and are usually embedded in transferframes. A transferframe for downlink can hold one spacepacket, but it can also hold several spacepackets or parts of a large spacepacket. Same is valid for uplink, but since uplink transfer frames can have a variable size, usually one uplink transferframe contains exactly one spacepacket.</p>
-<h3><a class="anchor" id="pus-telecommands"></a>
-PUS telecommands</h3>
+<h2><a class="anchor" id="pus-telecommands"></a>
+PUS telecommands</h2>
 <p>The usage of telecommands contained in spacepackets is described in the ECSS-E-70 Packet Utilization Standard (PUS).</p>
 <p>A command is identified by a service and a subservice number. There are some service, which are prededefined in the standard. Also status reports (for example Telecommand acceptance reports) can be requested with this protocol. Some parts of the packet should be placed in the secondary header of the spacepacket. <br  />
 </p>
-<h2><a class="anchor" id="integration"></a>
-Integration</h2>
+<h1><a class="anchor" id="integration"></a>
+Integration</h1>
 <p>TODO</p>
-<h2><a class="anchor" id="usage"></a>
-Usage</h2>
+<h1><a class="anchor" id="usage"></a>
+Usage</h1>
 <p>TODO</p>
-<h3><a class="anchor" id="sequence-diagram-for-cltu-extraction-on-the-spacecraft"></a>
-Sequence Diagram for CLTU extraction on the spacecraft</h3>
+<h2><a class="anchor" id="sequence-diagram-for-cltu-extraction-on-the-spacecraft"></a>
+Sequence Diagram for CLTU extraction on the spacecraft</h2>
 <div class="image">
 <img src="sequence_diagram_cltu.png" alt=""/>
 <div class="caption">
 Class Diagram CLTU</div></div>
-    <h3><a class="anchor" id="sequence-diagram-for-tc-transferframe-extraction-on-the-spacecraft"></a>
-Sequence Diagram for TC TransferFrame extraction on the spacecraft</h3>
+    <h2><a class="anchor" id="sequence-diagram-for-tc-transferframe-extraction-on-the-spacecraft"></a>
+Sequence Diagram for TC TransferFrame extraction on the spacecraft</h2>
 <div class="image">
 <img src="sequence_diagram_transferframe_tc.png" alt=""/>
 <div class="caption">
 Class Diagram Transferframe TC</div></div>
-    <h3><a class="anchor" id="sequence-diagram-for-tm-transferframe-extraction-on-the-ground"></a>
-Sequence Diagram for TM TransferFrame extraction on the ground</h3>
+    <h2><a class="anchor" id="sequence-diagram-for-tm-transferframe-extraction-on-the-ground"></a>
+Sequence Diagram for TM TransferFrame extraction on the ground</h2>
 <div class="image">
 <img src="sequence_diagram_transferframe_tm.png" alt=""/>
 <div class="caption">
 Class Diagram Transferframe TM</div></div>
-    <h3><a class="anchor" id="sequence-diagram-for-spacepacket-extraction"></a>
-Sequence Diagram for SpacePacket extraction</h3>
+    <h2><a class="anchor" id="sequence-diagram-for-spacepacket-extraction"></a>
+Sequence Diagram for SpacePacket extraction</h2>
 <div class="image">
 <img src="sequence_diagram_spacepacket.png" alt=""/>
 <div class="caption">
 Class Diagram Spacepacket</div></div>
-    <h2><a class="anchor" id="api"></a>
-API</h2>
+    <h1><a class="anchor" id="api"></a>
+API</h1>
 <p>See <img src="doc/html/" alt="Doxygen doc" class="inline"/></p>
-<h2><a class="anchor" id="diagrams"></a>
-Diagrams</h2>
-<h3><a class="anchor" id="class-diagram-cltu"></a>
-Class Diagram CLTU</h3>
+<h1><a class="anchor" id="diagrams"></a>
+Diagrams</h1>
+<h2><a class="anchor" id="class-diagram-cltu"></a>
+Class Diagram CLTU</h2>
 <p>This diagram illustrates the Cltu class.</p>
 <div class="image">
 <img src="class_diagram_cltu.png" alt=""/>
 <div class="caption">
 Class Diagram CLTU</div></div>
-    <h3><a class="anchor" id="class-diagram-spacepacket"></a>
-Class Diagram Spacepacket</h3>
+    <h2><a class="anchor" id="class-diagram-spacepacket"></a>
+Class Diagram Spacepacket</h2>
 <p>This diagram illustrates the Spacepacket class.</p>
 <div class="image">
 <img src="class_diagram_spacepacket.png" alt=""/>
 <div class="caption">
 Class Diagram Spacepacket</div></div>
-    <h3><a class="anchor" id="class-diagram-transferframe--clcw"></a>
-Class Diagram TransferFrame + CLCW</h3>
+    <h2><a class="anchor" id="class-diagram-transferframe--clcw"></a>
+Class Diagram TransferFrame + CLCW</h2>
 <p>This diagram illustrates the TransferFrame classes.</p>
 <div class="image">
 <img src="class_diagram_transferframe.png" alt=""/>
@@ -149,26 +146,26 @@ Class Diagram Transferframe</div></div>
 <img src="class_diagram_clcw.png" alt=""/>
 <div class="caption">
 Class Diagram CLCW</div></div>
-    <h2><a class="anchor" id="limitations"></a>
-Limitations</h2>
+    <h1><a class="anchor" id="limitations"></a>
+Limitations</h1>
 <p>Limitations of Transferframes (Telemetry): <br  />
 </p><ul>
 <li>The TM secondary header is not supported <br  />
 </li>
 <li>Randomization is not supported</li>
 </ul>
-<h2><a class="anchor" id="known-anomalies"></a>
-Known Anomalies</h2>
+<h1><a class="anchor" id="known-anomalies"></a>
+Known Anomalies</h1>
 <ul>
 <li>none</li>
 </ul>
-<h2><a class="anchor" id="changelog"></a>
-Changelog</h2>
-<h3><a class="anchor" id="autotoc_md100"></a>
-1.0.0</h3>
+<h1><a class="anchor" id="changelog"></a>
+Changelog</h1>
+<h2><a class="anchor" id="autotoc_md100"></a>
+1.0.0</h2>
 <p>Initial release</p>
-<h2><a class="anchor" id="website"></a>
-Website</h2>
+<h1><a class="anchor" id="website"></a>
+Website</h1>
 <p>Further information can be found on <a href="https://github.com/steftri/CCSDS">GitHub</a>. </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->

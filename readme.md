@@ -1,6 +1,3 @@
-Main Page {#mainpage}
-=========
-
 # CCSDS
 
 This is an implementation of a CCSDS compliant Transferframe and SpacePacket library as used in Satellites for transferring telecommands and data from ground to the satellite and telemetry from satellite to ground. 
