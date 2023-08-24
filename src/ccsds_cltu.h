@@ -24,15 +24,10 @@
 
 #include <inttypes.h>
 
+#include "ccsds_transferframe_tc.h"
 
-#ifdef configCLTU_MAX_SIZE
-#define CLTU_MAX_SIZE configCLTU_MAX_SIZE
-#else
+#define CLTU_DATA_BLOCK_SIZE  7
 #define CLTU_MAX_SIZE (2+((TC_TF_MAX_SIZE+6)/7)*8+8)
-#endif
-
-
-#define CLTU_DATA_BLOCK_SIZE 7
 
 
 namespace CCSDS
@@ -77,6 +72,9 @@ namespace CCSDS
    */
   class Cltu
   {
+  public:
+    const static uint16_t MaxSize = CLTU_MAX_SIZE;
+
   private:
     const static uint8_t StartSequenceSize = 2;
     const static uint8_t DataBlockSize = CLTU_DATA_BLOCK_SIZE;

@@ -20,17 +20,6 @@
 /** The Segment Header contains the Multiplexer Access Point (MAP) */
 #define configTF_TC_USE_SEG_HDR      1
 
-/** the maximum number of spacecraft IDs which can be checked by tmtc client */
-#define configTMTC_MAX_SCIDS         2  
-
-/** FrameSeqNumber window for AD mode, see 232.1-b-2 */
-#define configFARM_SLIDING_WINDOW_WIDTH 16  
-
-#ifndef configUSE_CLTU_SUPPORT             // this is needed for test cases
-/** CLTUs are used to syncronize to the uplink data stream. On TET1, this is done by hardware. */
-# define configUSE_CLTU_SUPPORT       1
-#endif
-
 /** The CLTU sequence must eb able to hold the whole Transferframe for uplink 
  *  The calculation  is (2+(((configTC_TF_MAX_SIZE+6)/7)*8+8)
  */
