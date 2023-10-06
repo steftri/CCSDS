@@ -176,11 +176,11 @@ namespace PUS
   uint16_t Tc::calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize)
   {
     uint16_t u16_Syndrome=0xffff;
-    uint8_t u8_Data;
     
     for(uint16_t i=0; i<u16_BufferSize; i++)
     {
-      u8_Data = pu8_Buffer[i];
+      uint8_t u8_Data = pu8_Buffer[i];
+
       for(uint8_t j=0; j<8; j++)
       {
         if((u8_Data&0x80)^((u16_Syndrome&0x8000)>>8))

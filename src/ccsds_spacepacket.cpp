@@ -30,6 +30,7 @@ namespace CCSDS
     , me_SequenceFlags{Unsegmented}
     , mu16_PacketSequenceCount{0}
     , mu16_PacketDataLength{0}
+    , mau8_PacketData{}
     , mb_Overflow{false}
     , mu16_SyncErrorCount{0}
     , mu16_OverflowErrorCount{0}
@@ -123,8 +124,8 @@ namespace CCSDS
                            u16_SecondaryHeaderLength?true:false, (uint32_t)u16_SecondaryHeaderLength+(uint32_t)u16_PacketDataLength);
     
     if(u16_SecondaryHeaderLength>0)
-      memcpy((char*)&pu8_Buffer[PrimaryHdrSize], (const char*)pu8_SecondaryHeaderData, u16_SecondaryHeaderLength);
-    memcpy((char*)&pu8_Buffer[PrimaryHdrSize+u16_SecondaryHeaderLength], pu8_PacketData, u16_PacketDataLength);
+      memcpy(&pu8_Buffer[PrimaryHdrSize], pu8_SecondaryHeaderData, u16_SecondaryHeaderLength);
+    memcpy(&pu8_Buffer[PrimaryHdrSize+u16_SecondaryHeaderLength], pu8_PacketData, u16_PacketDataLength);
     
     return PrimaryHdrSize+u16_SecondaryHeaderLength+u16_PacketDataLength;
   }
@@ -158,7 +159,7 @@ namespace CCSDS
     _create_primary_header(pu8_Buffer, TM, Unsegmented, 0x7ff, u16_SequenceCount,
                            false, (uint32_t)u16_TargetPacketSize-PrimaryHdrSize);
     
-    memset((char*)&pu8_Buffer[PrimaryHdrSize], 0xff, u16_TargetPacketSize-PrimaryHdrSize);
+    memset(&pu8_Buffer[PrimaryHdrSize], 0xff, u16_TargetPacketSize-PrimaryHdrSize);
     
     return u16_TargetPacketSize;
   }
@@ -240,7 +241,7 @@ namespace CCSDS
         default:
           if(mu32_Index-SP_HEADER_SIZE<SP_MAX_DATA_SIZE)
           {
-            au8_PacketData[mu32_Index-PrimaryHdrSize]=pu8_Buffer[i];
+            mau8_PacketData[mu32_Index-PrimaryHdrSize]=pu8_Buffer[i];
           }
           else
           {
@@ -254,7 +255,7 @@ namespace CCSDS
       if((mu32_Index>=SP_HEADER_SIZE) && (mu32_Index>=(SP_HEADER_SIZE+mu16_PacketDataLength+1UL)))
       {
         if(nullptr!=mp_ActionInterface)
-          mp_ActionInterface->onSpacePacketReceived(me_PacketType, me_SequenceFlags, mu16_APID, mu16_PacketSequenceCount, mb_SecHdrFlag, au8_PacketData, mu16_PacketDataLength+1);
+          mp_ActionInterface->onSpacePacketReceived(me_PacketType, me_SequenceFlags, mu16_APID, mu16_PacketSequenceCount, mb_SecHdrFlag, mau8_PacketData, mu16_PacketDataLength+1);
         mu32_Index = 0;
         mb_Overflow = false;
       }

@@ -95,7 +95,7 @@ namespace CCSDS
       return -1;
     
     //   cout << "Tf::process(); max size: " << u16_MaxTfSize << endl;
-    uint8_t au8_Sync[SyncSize]={0x1a, 0xcf, 0xfc, 0x1d};
+    const uint8_t au8_Sync[SyncSize]={0x1a, 0xcf, 0xfc, 0x1d};
     
     for(uint16_t i=0; i<u16_DataSize; i++)
     {

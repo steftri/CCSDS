@@ -30,6 +30,7 @@ namespace CCSDS
    */
   TransferframeTm::TransferframeTm(TransferframeTmActionInterface *p_ActionInterface) 
     : Transferframe()
+    , mau8_Buffer{}
     , mp_ActionInterface{p_ActionInterface}  
   {
   }
@@ -92,9 +93,9 @@ namespace CCSDS
                          false, false, false,
                          0, u16_FirstHdrPtr);
     
-    memcpy((char*)&pu8_Buffer[PrimaryHdrSize], pu8_Data, u16_DataSize);
+    memcpy(&pu8_Buffer[PrimaryHdrSize], pu8_Data, u16_DataSize);
     if(u16_AvailableDataSize>u16_DataSize)
-      memset((char*)&pu8_Buffer[PrimaryHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
+      memset(&pu8_Buffer[PrimaryHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
     
 #if TF_USE_OCF == 1
     pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize] = (uint8_t)(u32_OCF>>24);
@@ -153,7 +154,7 @@ namespace CCSDS
                          0, 0x7FE);
     
     
-    memset((char*)&pu8_Buffer[PrimaryHdrSize], 0xCA, u16_AvailableDataSize);
+    memset(&pu8_Buffer[PrimaryHdrSize], 0xCA, u16_AvailableDataSize);
     
 #if TF_USE_OCF == 1
     pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize] = (uint8_t)(u32_OCF>>24);

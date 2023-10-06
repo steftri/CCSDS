@@ -29,6 +29,7 @@ namespace CCSDS
    */
   TransferframeTc::TransferframeTc(TransferframeTcActionInterface *p_ActionInterface) 
     : Transferframe()
+    , mau8_Buffer{}
     , mp_ActionInterface{p_ActionInterface}
   {
   }
@@ -99,9 +100,9 @@ namespace CCSDS
     if(UseSegHdr)
       _createSegmentHeader(&pu8_Buffer[PrimaryHdrSize], NoSegmentation, u8_MAP);
 
-    memcpy((char*)&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize], pu8_Data, u16_DataSize);
+    memcpy(&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize], pu8_Data, u16_DataSize);
     if(u16_AvailableDataSize>u16_DataSize)
-      memset((char*)&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
+      memset(&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
     
 #if TF_USE_FECF == 1
     u16_CRC = Transferframe::calcCRC(pu8_Buffer, PrimaryHdrSize+SegmentHdrSize+u16_DataSize);
@@ -168,7 +169,7 @@ namespace CCSDS
     uint8_t u8_FrameSeqNumber;
     uint8_t u8_MAP;
     uint8_t *pu8_PrimaryHeader=mau8_Buffer;
-    uint8_t *pu8_SegmentHeader=&mau8_Buffer[PrimaryHdrSize];
+    const uint8_t *pu8_SegmentHeader=&mau8_Buffer[PrimaryHdrSize];
     
     b_BypassFlag = (pu8_PrimaryHeader[0]&0x20)?true:false;
     b_CtrlCmdFlag = (pu8_PrimaryHeader[0]&0x10)?true:false;

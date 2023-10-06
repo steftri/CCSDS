@@ -124,7 +124,7 @@ namespace CCSDS
     ESpacePacketSequenceFlags me_SequenceFlags;
     uint16_t mu16_PacketSequenceCount;
     uint16_t mu16_PacketDataLength;
-    uint8_t au8_PacketData[SP_MAX_DATA_SIZE];
+    uint8_t mau8_PacketData[SP_MAX_DATA_SIZE];
     
     bool mb_Overflow;
     uint16_t mu16_SyncErrorCount;

@@ -22,6 +22,7 @@ namespace CCSDS
    */
   Cltu::Cltu(CltuActionInterface *p_ActionInterface)
     : mb_Sync{false}
+    , mau8_Buffer{}
     , mu8_Index{0}
     , mp_ActionInterface{p_ActionInterface}
   {
@@ -101,10 +102,7 @@ namespace CCSDS
    */
   void Cltu::process(const uint8_t *pu8_Data, const uint16_t u16_DataSize)
   {
-    //bool mb_Sync;
-    //uint8_t mau8_Buffer[DataBlockSize];
-    //uint8_t mu8_Index;
-    uint8_t au8_Sync[StartSequenceSize]={0xeb, 0x90};
+    const uint8_t au8_Sync[StartSequenceSize]={0xeb, 0x90};
     
     for(uint16_t i=0; i<u16_DataSize; i++)
     {
@@ -127,8 +125,6 @@ namespace CCSDS
         }
         if(mu8_Index == StartSequenceSize)
         {
-          // sync complete
-          //cout << "Sync found" << endl;
           mb_Sync=true;
           mu8_Index=0;
           if(mp_ActionInterface)
