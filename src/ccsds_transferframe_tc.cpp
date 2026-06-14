@@ -78,10 +78,16 @@ namespace CCSDS
 #if TF_USE_FECF == 1
     uint16_t u16_CRC;
 #endif
-    
-    if(!pu8_Buffer || (u32_BufferSize<PrimaryHdrSize+SegmentHdrSize+1+(UseFECF?FecfSize:0)))
+
+    if((pu8_Data==nullptr) || (u16_DataSize==0))
       return 0;
-    if((u16_DataSize==0) || !pu8_Data)
+
+    if((pu8_Buffer==nullptr) || (u32_BufferSize<PrimaryHdrSize+SegmentHdrSize+1+(UseFECF?FecfSize:0)))
+      return 0;
+
+    // Check if the data size is too big for a single frame. If so, the method returns 0, 
+    // because currently no segmentation is implemented for TC frames.
+    if(u16_DataSize>MaxTfSize-PrimaryHdrSize-SegmentHdrSize-(UseFECF?FecfSize:0))
       return 0;
     
     u16_AvailableDataSize=u32_BufferSize-PrimaryHdrSize-SegmentHdrSize-(UseFECF?FecfSize:0);
@@ -101,8 +107,8 @@ namespace CCSDS
       _createSegmentHeader(&pu8_Buffer[PrimaryHdrSize], NoSegmentation, u8_MAP);
 
     memcpy(&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize], pu8_Data, u16_DataSize);
-    if(u16_AvailableDataSize>u16_DataSize)
-      memset(&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
+    //if(u16_AvailableDataSize>u16_DataSize)
+    //  memset(&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
     
 #if TF_USE_FECF == 1
     u16_CRC = Transferframe::calcCRC(pu8_Buffer, PrimaryHdrSize+SegmentHdrSize+u16_DataSize);
@@ -151,6 +157,11 @@ namespace CCSDS
   inline uint16_t TransferframeTc::_getPrimaryHeaderSize(void)
   {
     return PrimaryHdrSize;
+  }
+
+  inline uint16_t TransferframeTc::_getSecondaryHeaderSize(void)
+  {
+    return SegmentHdrSize;
   }
   
   inline uint16_t TransferframeTc::_getFrameLength(void)

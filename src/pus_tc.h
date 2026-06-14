@@ -122,17 +122,16 @@ namespace PUS
                            const bool b_AckAcc, const bool b_AckStart, const bool b_AckProg, const bool b_AckComp,
                            const uint8_t u8_Service, const uint8_t u8_SubService,
                            const uint8_t u8_SourceID,
-                           const uint8_t *pu8_Data, const uint32_t u32_DataSize,
-                           const enum ChecksumType e_ChecksumType = ChecksumType::StandardCRC);
+                           const uint8_t *pu8_Data, const uint32_t u32_DataSize);
     
     // sp processing
     int32_t process(const uint8_t *pu8_Buffer, const uint32_t u32_BufferSize);
     
   private:
-    static int32_t _create_secondary_header(uint8_t *pu8_Buffer,
+    static uint32_t _create_secondary_header(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
                                             const bool b_AckAcc, const bool b_AckStart, const bool b_AckProg, const bool b_AckComp,
                                             const uint8_t u8_Service, const uint8_t u8_SubService,
-                                            const uint8_t u8_SourceID, const uint16_t u16_Spare);
+                                            const uint8_t u8_SourceID);
     
   public:
     static uint16_t calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize);

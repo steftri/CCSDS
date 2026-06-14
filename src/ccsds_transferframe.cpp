@@ -88,7 +88,8 @@ namespace CCSDS
   {
     uint16_t u16_MaxTfSize = _getMaxTfSize();
     uint8_t *pu8_Buffer = _getTfBufferAddr();
-    uint16_t u16_PrimaryHdrSize = _getPrimaryHeaderSize();
+    const uint16_t u16_PrimaryHdrSize = _getPrimaryHeaderSize();
+    const uint16_t u16_SecondaryHdrSize = _getSecondaryHeaderSize();
     bool b_Valid = true;
     
     if((u16_DataSize==0) || !pu8_Data)
@@ -136,7 +137,7 @@ namespace CCSDS
         //  cout << 'H';
         //displaybuffer(pu8_Buffer, u16_PrimaryHdrSize);
         mu16_FrameLength = _getFrameLength();
-        if(mu16_FrameLength+1>_getMaxTfSize())
+        if((mu16_FrameLength+1>_getMaxTfSize() || mu16_FrameLength+1<u16_PrimaryHdrSize+u16_SecondaryHdrSize+(UseFECF?FecfSize:0)))
         {
           mb_Sync=false;
           mu16_Index=0;
@@ -146,7 +147,7 @@ namespace CCSDS
         }
       }
       
-      if((mu16_Index>SyncSize+(uint32_t)u16_PrimaryHdrSize) && (mu16_Index>=SyncSize+mu16_FrameLength+1))
+      if((mu16_Index>SyncSize+u16_PrimaryHdrSize+u16_SecondaryHdrSize) && (mu16_Index>=SyncSize+mu16_FrameLength+1))
       {
         //  cout << "C: ";
         //  displaybuffer(pu8_Buffer, mu16_FrameLength+1);
@@ -235,7 +236,7 @@ namespace CCSDS
     //   uint16_t u16_PrimaryHdrSize = _getPrimaryHeaderSize();
     uint16_t u16_FrameCRC;
     uint16_t u16_CalcCRC;
-    
+
     u16_FrameCRC = (uint16_t)(pu8_Buffer[mu16_FrameLength+1-2]<<8) | (uint16_t)pu8_Buffer[mu16_FrameLength+1-1];
     u16_CalcCRC = Transferframe::calcCRC(pu8_Buffer, mu16_FrameLength+1-2);
     

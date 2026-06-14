@@ -86,6 +86,11 @@ namespace CCSDS
     u16_AvailableDataSize=TfSize-PrimaryHdrSize-(UseOCF?OcfSize:0)-(UseFECF?FecfSize:0);
     if(u16_DataSize>u16_AvailableDataSize)
       return 0;
+
+    if((u16_FirstHdrPtr>u16_DataSize) && (u16_FirstHdrPtr!=FirstHeaderPtrOnlyIdleData) && (u16_FirstHdrPtr!=FirstHeaderPtrNoDataStart))
+      return 0;
+
+
     
     // create primary header
     _createPrimaryHeader(pu8_Buffer, u16_SpacecraftID, u8_VirtualChannelID, UseOCF,
@@ -208,6 +213,11 @@ namespace CCSDS
   inline uint16_t TransferframeTm::_getPrimaryHeaderSize(void)
   {
     return PrimaryHdrSize;
+  }
+
+  inline uint16_t TransferframeTm::_getSecondaryHeaderSize(void)
+  {
+    return 0;
   }
   
   inline uint16_t TransferframeTm::_getFrameLength(void)

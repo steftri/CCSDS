@@ -129,6 +129,7 @@ namespace CCSDS
     bool mb_Overflow;
     uint16_t mu16_SyncErrorCount;
     uint16_t mu16_OverflowErrorCount;
+    uint16_t mu16_VersionErrorCount;
     
     SpacePacketActionInterface *mp_ActionInterface;
 
@@ -156,6 +157,7 @@ namespace CCSDS
     
     uint16_t getSyncErrorCount(void);
     uint16_t getOverflowErrorCount(void);
+    uint16_t getVersionErrorCount(void);
     void clearErrorCounters(void);
     
   private:

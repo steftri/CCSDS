@@ -18,7 +18,7 @@
 /*    https://public.ccsds.org/Pubs/232x0b3.pdf                 */
 /*                                                              */
 /* Limitations:                                                 */ 
-/*  - The TC segment header is not supported                    */
+/*  - The TC segment header is not (fully) supported            */
 /*                                                              */
 /* Remarks:                                                     */
 /*  - the sync code 0x1acffc1d is not generated                 */
@@ -146,6 +146,7 @@ namespace CCSDS
     inline uint16_t _getMaxTfSize(void) override;
     inline uint8_t *_getTfBufferAddr(void) override;
     inline uint16_t _getPrimaryHeaderSize(void) override;
+    inline uint16_t _getSecondaryHeaderSize(void) override;
     inline uint16_t _getFrameLength(void) override;
   };
     

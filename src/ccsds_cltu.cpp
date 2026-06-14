@@ -54,38 +54,40 @@ namespace CCSDS
   uint32_t Cltu::create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
                         const uint8_t *pu8_Data, const uint16_t u16_DataSize)
   {
-    uint16_t u16_RequiredBufferSize = StartSequenceSize
-    +((u16_DataSize+(DataBlockSize-1))/DataBlockSize)*(DataBlockSize+CRCSize)
-    +TailSquenceSize;
+    uint32_t u32_RequiredBufferSize;
     uint16_t u16_BlockNr;
     uint16_t u16_RemainingDataSize = 0;
-    uint16_t u16_WritePos = 0;
-    
-    if(!pu8_Buffer || (u32_BufferSize<u16_RequiredBufferSize))
+    uint32_t u32_WritePos = 0;
+
+    u32_RequiredBufferSize = StartSequenceSize
+            +((static_cast<uint32_t>(u16_DataSize)+(DataBlockSize-1))/DataBlockSize)*(DataBlockSize+CRCSize)
+            +TailSquenceSize;
+
+    if(!pu8_Buffer || (u32_BufferSize<u32_RequiredBufferSize))
       return 0;
     if(u16_DataSize>0 && !pu8_Data)
       return 0;
     
-    pu8_Buffer[u16_WritePos++]=0xEB;
-    pu8_Buffer[u16_WritePos++]=0x90;
+    pu8_Buffer[u32_WritePos++]=0xEB;
+    pu8_Buffer[u32_WritePos++]=0x90;
     for(u16_BlockNr=0; ((u16_BlockNr+1)*DataBlockSize-1)<u16_DataSize; u16_BlockNr++)
     {
-      memcpy(&pu8_Buffer[u16_WritePos], &pu8_Data[u16_BlockNr*DataBlockSize], DataBlockSize);
-      pu8_Buffer[u16_WritePos+DataBlockSize]=calcCRC(&pu8_Buffer[u16_WritePos], DataBlockSize);
-      u16_WritePos+=(DataBlockSize+CRCSize);
+      memcpy(&pu8_Buffer[u32_WritePos], &pu8_Data[u16_BlockNr*DataBlockSize], DataBlockSize);
+      pu8_Buffer[u32_WritePos+DataBlockSize]=calcCRC(&pu8_Buffer[u32_WritePos], DataBlockSize);
+      u32_WritePos+=(DataBlockSize+CRCSize);
     }
     u16_RemainingDataSize=u16_DataSize-(u16_BlockNr*DataBlockSize);
     if(u16_RemainingDataSize)
     {
-      memcpy(&pu8_Buffer[u16_WritePos], &pu8_Data[u16_BlockNr*DataBlockSize], u16_RemainingDataSize);
-      memset(&pu8_Buffer[u16_WritePos+u16_RemainingDataSize], 0x55, DataBlockSize-u16_RemainingDataSize);
-      pu8_Buffer[u16_WritePos+DataBlockSize]=calcCRC(&pu8_Buffer[u16_WritePos], DataBlockSize);
-      u16_WritePos+=(DataBlockSize+CRCSize);
+      memcpy(&pu8_Buffer[u32_WritePos], &pu8_Data[u16_BlockNr*DataBlockSize], u16_RemainingDataSize);
+      memset(&pu8_Buffer[u32_WritePos+u16_RemainingDataSize], 0x55, DataBlockSize-u16_RemainingDataSize);
+      pu8_Buffer[u32_WritePos+DataBlockSize]=calcCRC(&pu8_Buffer[u32_WritePos], DataBlockSize);
+      u32_WritePos+=(DataBlockSize+CRCSize);
     }
-    memset(&pu8_Buffer[u16_WritePos], 0xC5, DataBlockSize);
-    pu8_Buffer[u16_WritePos+DataBlockSize]=0x79;
+    memset(&pu8_Buffer[u32_WritePos], 0xC5, DataBlockSize);
+    pu8_Buffer[u32_WritePos+DataBlockSize]=0x79;
     
-    return u16_WritePos+DataBlockSize+CRCSize;
+    return u32_WritePos+DataBlockSize+CRCSize;
   }
   
   
@@ -103,6 +105,9 @@ namespace CCSDS
   void Cltu::process(const uint8_t *pu8_Data, const uint16_t u16_DataSize)
   {
     const uint8_t au8_Sync[StartSequenceSize]={0xeb, 0x90};
+
+    if((pu8_Data == nullptr) || (u16_DataSize == 0))
+      return;
     
     for(uint16_t i=0; i<u16_DataSize; i++)
     {
@@ -165,8 +170,10 @@ namespace CCSDS
     uint8_t u8_CRC=0x00;
     uint8_t u8_DataStreamXorBit6;
     
+    if((pu8_Buffer == nullptr) || (u8_BufferSize == 0))
+      return (~u8_CRC)<<1;
+
     // polynom: G(X) = X^7 + X^6 + X^2 + 1
-    
     for(uint8_t u8_BytePos = 0; u8_BytePos<u8_BufferSize; u8_BytePos++)
     {
       for(uint32_t u8_BitPos = 0; u8_BitPos<8; u8_BitPos++)
@@ -179,5 +186,4 @@ namespace CCSDS
     return (~u8_CRC)<<1;
   }
   
-
 }

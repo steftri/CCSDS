@@ -117,6 +117,8 @@ namespace CCSDS
     const static uint8_t PrimaryHdrSize = 6;
     const static uint8_t OcfSize = 4;
     const static uint16_t TfSize = TM_TF_TOTAL_SIZE;
+    const static uint16_t FirstHeaderPtrOnlyIdleData = 0x7FE;
+    const static uint16_t FirstHeaderPtrNoDataStart = 0x7FF;
     uint8_t mau8_Buffer[TM_TF_TOTAL_SIZE];
     
     const static bool UseOCF = (TF_USE_OCF)?true:false;  // Operational Control Field (CLCW)
@@ -154,6 +156,7 @@ namespace CCSDS
     inline uint16_t _getMaxTfSize(void) override;
     inline uint8_t *_getTfBufferAddr(void) override;
     inline uint16_t _getPrimaryHeaderSize(void) override;
+    inline uint16_t _getSecondaryHeaderSize(void) override;
     inline uint16_t _getFrameLength(void) override;
   };
   

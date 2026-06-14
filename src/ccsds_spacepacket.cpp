@@ -34,6 +34,7 @@ namespace CCSDS
     , mb_Overflow{false}
     , mu16_SyncErrorCount{0}
     , mu16_OverflowErrorCount{0}
+    , mu16_VersionErrorCount{0}
     , mp_ActionInterface{p_ActionInterface}
   {
   }
@@ -118,7 +119,10 @@ namespace CCSDS
     
     if((uint32_t)u16_SecondaryHeaderLength+(uint32_t)u16_PacketDataLength-1>0xffff)
       return 0;
-    
+   
+    if((u16_APID>0x07ff) || (u16_SequenceCount>0x3fff))
+      return 0;      
+
     // create primary header
     _create_primary_header(pu8_Buffer, e_PacketType, e_SequenceFlags, u16_APID, u16_SequenceCount,
                            u16_SecondaryHeaderLength?true:false, (uint32_t)u16_SecondaryHeaderLength+(uint32_t)u16_PacketDataLength);
@@ -154,7 +158,10 @@ namespace CCSDS
     if(!pu8_Buffer || (u32_BufferSize<u16_TargetPacketSize)
        || (u16_TargetPacketSize<PrimaryHdrSize+1))
       return 0;
-    
+   
+    if(u16_SequenceCount>0x3fff)
+      return 0;
+      
     // create primary header
     _create_primary_header(pu8_Buffer, TM, Unsegmented, 0x7ff, u16_SequenceCount,
                            false, (uint32_t)u16_TargetPacketSize-PrimaryHdrSize);
@@ -254,8 +261,16 @@ namespace CCSDS
       mu32_Index++;
       if((mu32_Index>=SP_HEADER_SIZE) && (mu32_Index>=(SP_HEADER_SIZE+mu16_PacketDataLength+1UL)))
       {
-        if(nullptr!=mp_ActionInterface)
-          mp_ActionInterface->onSpacePacketReceived(me_PacketType, me_SequenceFlags, mu16_APID, mu16_PacketSequenceCount, mb_SecHdrFlag, mau8_PacketData, mu16_PacketDataLength+1);
+        if(mu8_PacketVersionNumber != SpPacketVersion)
+        {
+          if(mu16_VersionErrorCount<0xffff)
+            mu16_VersionErrorCount++;
+        }
+        else
+        {
+          if(nullptr!=mp_ActionInterface)
+            mp_ActionInterface->onSpacePacketReceived(me_PacketType, me_SequenceFlags, mu16_APID, mu16_PacketSequenceCount, mb_SecHdrFlag, mau8_PacketData, mu16_PacketDataLength+1);
+        }
         mu32_Index = 0;
         mb_Overflow = false;
       }
@@ -301,15 +316,32 @@ namespace CCSDS
     return mu16_OverflowErrorCount;
   }
   
+
+  /**
+   * @brief Returns the number of version errors
+   *
+   * Version errors occur if the version number given in the primary header does not match
+   * the expected version number (currently 0).
+   *
+   * If the number of version errors exceeds 65535, the method returns 65535.
+   *
+   * @return Number of version errors as uint16_t
+   */
+  uint16_t SpacePacket::getVersionErrorCount(void)
+  {
+    return mu16_VersionErrorCount;
+  }
+
   
   
   /**
-   * @brief Clears all error counters (Sync Error and Overflow Error)
+   * @brief Clears all error counters (Sync Error, Overflow Error, and Version Error)
    */
   void SpacePacket::clearErrorCounters(void)
   {
     mu16_SyncErrorCount=0;
     mu16_OverflowErrorCount=0;
+    mu16_VersionErrorCount=0;
     return;
   }
   

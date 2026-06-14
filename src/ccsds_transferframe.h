@@ -85,6 +85,7 @@ namespace CCSDS
     virtual uint16_t _getMaxTfSize(void) = 0;
     virtual uint8_t *_getTfBufferAddr(void) = 0;
     virtual uint16_t _getPrimaryHeaderSize(void) = 0;
+    virtual uint16_t _getSecondaryHeaderSize(void) = 0;
     virtual uint16_t _getFrameLength(void) = 0;
   };
 

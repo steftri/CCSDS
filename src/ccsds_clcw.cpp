@@ -63,7 +63,7 @@ namespace CCSDS
    * @param pu8_ReportValue       Pointer to an uint8_t where the 8-bit FARM-A counter shall be stored.
    * @param u32_CLCW              The Communications Link Control Word (CLCW) which is to be extracted.
    *
-   * @retval  0                   Exctraction was sucessfull.
+   * @retval  0                   Extraction was successful.
    * @retval -1                   The CLCW version number does not match the expected one.
    */
   int32_t Clcw::extract(uint8_t *pu8_StatusField, uint8_t *pu8_VirtualChannelID,
@@ -71,6 +71,11 @@ namespace CCSDS
                         uint8_t *pu8_FarmBCounter, uint8_t *pu8_ReportValue, const uint32_t u32_CLCW)
   {
     uint8_t u8_ClcwVersionNumber;
+
+    // version number check
+    u8_ClcwVersionNumber=(uint8_t)((u32_CLCW>>29)&0x3);
+    if(u8_ClcwVersionNumber!=ClcwVersionNumber)
+      return -1;    
     
     if(pu8_StatusField)
       *pu8_StatusField=(uint8_t)((u32_CLCW>>26)&0x7);
@@ -93,11 +98,6 @@ namespace CCSDS
       *pu8_FarmBCounter=(uint8_t)((u32_CLCW>>9)&0x3);
     if(pu8_ReportValue)
       *pu8_ReportValue=(uint8_t)(u32_CLCW&0xff);
-    
-    // version number check (last - to
-    u8_ClcwVersionNumber=(uint8_t)((u32_CLCW>>29)&0x3);
-    if(u8_ClcwVersionNumber!=ClcwVersionNumber)
-      return -1;
     
     return 0;
   }
