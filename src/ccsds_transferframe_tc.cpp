@@ -5,7 +5,7 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 #include <string.h>
@@ -68,14 +68,14 @@ namespace CCSDS
    * @retval 0  No packet could be created
    * @return The size of the created packet in bytes as uint32_t
    */
-  uint32_t TransferframeTc::create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                                   const bool b_BypassFlag, const bool b_CtrlCmdFlag,
-                                   const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                                   const uint8_t u8_FrameSeqNumber, const uint8_t u8_MAP,
-                                   const uint8_t *pu8_Data, const uint16_t u16_DataSize)
+  uint32_t TransferframeTc::create(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                                   bool b_BypassFlag, bool b_CtrlCmdFlag,
+                                   uint16_t u16_SpacecraftID, uint8_t u8_VirtualChannelID,
+                                   uint8_t u8_FrameSeqNumber, uint8_t u8_MAP,
+                                   const uint8_t *pu8_Data, uint16_t u16_DataSize)
   {
     uint16_t u16_AvailableDataSize;
-#if TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF == 1
     uint16_t u16_CRC;
 #endif
 
@@ -104,16 +104,16 @@ namespace CCSDS
 
     // create segment header
     if(UseSegHdr)
-      _createSegmentHeader(&pu8_Buffer[PrimaryHdrSize], NoSegmentation, u8_MAP);
+      _createSegmentHeader(&pu8_Buffer[PrimaryHdrSize], ESeqFlags::NoSegmentation, u8_MAP);
 
     memcpy(&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize], pu8_Data, u16_DataSize);
     //if(u16_AvailableDataSize>u16_DataSize)
     //  memset(&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
     
-#if TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF == 1
     u16_CRC = Transferframe::calcCRC(pu8_Buffer, PrimaryHdrSize+SegmentHdrSize+u16_DataSize);
-    pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize]   = (uint8_t)(u16_CRC>>8);
-    pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize+1] = (uint8_t)(u16_CRC&0xff);
+    pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize]   = static_cast<uint8_t>(u16_CRC>>8);
+    pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize+1] = static_cast<uint8_t>(u16_CRC&0xff);
 #endif
     
     return PrimaryHdrSize+SegmentHdrSize+u16_DataSize+(UseFECF?FecfSize:0);
@@ -122,23 +122,23 @@ namespace CCSDS
   
   
   int32_t TransferframeTc::_createPrimaryHeader(uint8_t *pu8_Buffer,
-                                                const bool b_BypassFlag, const bool b_CtrlCmdFlag,
-                                                const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                                                const uint16_t u16_FrameLength, const uint8_t u8_FrameSeqNumber)
+                                                bool b_BypassFlag, bool b_CtrlCmdFlag,
+                                                uint16_t u16_SpacecraftID, uint8_t u8_VirtualChannelID,
+                                                uint16_t u16_FrameLength, uint8_t u8_FrameSeqNumber)
   {
-    pu8_Buffer[0] = (uint8_t)(((TcTfVersionNumber&0x3)<<6) | ((b_BypassFlag?1:0)<<5) | ((b_CtrlCmdFlag?1:0)<<4) | ((u16_SpacecraftID>>8)&0x03));
-    pu8_Buffer[1] = (uint8_t)(u16_SpacecraftID&0xFF);
-    pu8_Buffer[2] = (uint8_t)(((u8_VirtualChannelID&0x3F)<<2) | ((u16_FrameLength>>8)&0x03));
-    pu8_Buffer[3] = (uint8_t)(u16_FrameLength&0xff);
+    pu8_Buffer[0] = static_cast<uint8_t>(((TcTfVersionNumber&0x3)<<6) | ((b_BypassFlag?1:0)<<5) | ((b_CtrlCmdFlag?1:0)<<4) | ((u16_SpacecraftID>>8)&0x03));
+    pu8_Buffer[1] = static_cast<uint8_t>(u16_SpacecraftID&0xFF);
+    pu8_Buffer[2] = static_cast<uint8_t>(((u8_VirtualChannelID&0x3F)<<2) | ((u16_FrameLength>>8)&0x03));
+    pu8_Buffer[3] = static_cast<uint8_t>(u16_FrameLength&0xff);
     pu8_Buffer[4] = u8_FrameSeqNumber;  
 
     return 5;
   }
   
   
-  int32_t TransferframeTc::_createSegmentHeader(uint8_t *pu8_Buffer, const enum ESeqFlags e_SeqFlags, const uint8_t u8_MAP)
+  int32_t TransferframeTc::_createSegmentHeader(uint8_t *pu8_Buffer, ESeqFlags e_SeqFlags, uint8_t u8_MAP)
   {
-    pu8_Buffer[0] = (uint8_t)((e_SeqFlags)<<6) | (u8_MAP&0x3f);
+    pu8_Buffer[0] = ((static_cast<uint8_t>(e_SeqFlags)<<6) | (u8_MAP&0x3f));
     
     return 1;
   }  
@@ -166,7 +166,7 @@ namespace CCSDS
   
   inline uint16_t TransferframeTc::_getFrameLength(void)
   {
-    return (((uint16_t)(mau8_Buffer[2]&0x3)<<8) | (uint16_t)mau8_Buffer[3]);
+    return static_cast<uint16_t>((mau8_Buffer[2]&0x3)<<8) | static_cast<uint16_t>(mau8_Buffer[3]);
   }
   
   
@@ -184,8 +184,8 @@ namespace CCSDS
     
     b_BypassFlag = (pu8_PrimaryHeader[0]&0x20)?true:false;
     b_CtrlCmdFlag = (pu8_PrimaryHeader[0]&0x10)?true:false;
-    u16_SpacecraftID = (uint16_t)((pu8_PrimaryHeader[0]&0x03)<<8) | (uint16_t)pu8_PrimaryHeader[1];
-    u8_VirtualChannelID = (uint8_t)((pu8_PrimaryHeader[2]&0xFC)>>2);
+    u16_SpacecraftID = static_cast<uint16_t>((pu8_PrimaryHeader[0]&0x03)<<8) | static_cast<uint16_t>(pu8_PrimaryHeader[1]);
+    u8_VirtualChannelID = static_cast<uint8_t>((pu8_PrimaryHeader[2]&0xFC)>>2);
     u8_FrameSeqNumber = pu8_PrimaryHeader[4];
 
     u8_MAP = UseSegHdr?(pu8_SegmentHeader[0]&0x3F):0x00;

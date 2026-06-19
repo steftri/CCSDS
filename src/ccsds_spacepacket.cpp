@@ -5,7 +5,7 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 #include <string.h>
@@ -24,10 +24,10 @@ namespace CCSDS
   SpacePacket::SpacePacket(SpacePacketActionInterface *p_ActionInterface)
     : mu32_Index{0}
     , mu8_PacketVersionNumber{0}
-    , me_PacketType{TM}
+    , me_PacketType{ESpacePacketType::TM}
     , mb_SecHdrFlag{false}
     , mu16_APID{0x000}
-    , me_SequenceFlags{Unsegmented}
+    , me_SequenceFlags{ESpacePacketSequenceFlags::Unsegmented}
     , mu16_PacketSequenceCount{0}
     , mu16_PacketDataLength{0}
     , mau8_PacketData{}
@@ -70,9 +70,9 @@ namespace CCSDS
    * @retval 0  No packet could be created
    * @return The size of the created packet in bytes as uint32_t
    */
-  uint32_t SpacePacket::create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                               const ESpacePacketType e_PacketType, const ESpacePacketSequenceFlags e_SequenceFlags, const uint16_t u16_APID, const uint16_t u16_SequenceCount,
-                               const uint8_t *pu8_PacketData, const uint16_t u16_PacketDataLength)
+  uint32_t SpacePacket::create(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                               ESpacePacketType e_PacketType, ESpacePacketSequenceFlags e_SequenceFlags, uint16_t u16_APID, uint16_t u16_SequenceCount,
+                               const uint8_t *pu8_PacketData, uint16_t u16_PacketDataLength)
   {
     return create(pu8_Buffer, u32_BufferSize, e_PacketType, e_SequenceFlags, u16_APID, u16_SequenceCount,
                   nullptr, 0, pu8_PacketData, u16_PacketDataLength);
@@ -104,10 +104,10 @@ namespace CCSDS
    * @retval 0  No packet could be created
    * @return The size of the created packet in bytes as uint32_t
    */
-  uint32_t SpacePacket::create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                               const ESpacePacketType e_PacketType, const ESpacePacketSequenceFlags e_SequenceFlags, const uint16_t u16_APID, const uint16_t u16_SequenceCount,
-                               const uint8_t *pu8_SecondaryHeaderData, const uint16_t u16_SecondaryHeaderLength,
-                               const uint8_t *pu8_PacketData, const uint16_t u16_PacketDataLength)
+  uint32_t SpacePacket::create(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                               ESpacePacketType e_PacketType, ESpacePacketSequenceFlags e_SequenceFlags, uint16_t u16_APID, uint16_t u16_SequenceCount,
+                               const uint8_t *pu8_SecondaryHeaderData, uint16_t u16_SecondaryHeaderLength,
+                               const uint8_t *pu8_PacketData, uint16_t u16_PacketDataLength)
   {
     if(!pu8_Buffer || (u32_BufferSize<7)
        || (u32_BufferSize<6UL+u16_SecondaryHeaderLength+u16_PacketDataLength)
@@ -117,7 +117,7 @@ namespace CCSDS
     if(u16_SecondaryHeaderLength>0 && !pu8_SecondaryHeaderData)
       return 0;
     
-    if((uint32_t)u16_SecondaryHeaderLength+(uint32_t)u16_PacketDataLength-1>0xffff)
+    if(static_cast<uint32_t>(u16_SecondaryHeaderLength)+static_cast<uint32_t>(u16_PacketDataLength)-1>0xffff)
       return 0;
    
     if((u16_APID>0x07ff) || (u16_SequenceCount>0x3fff))
@@ -125,7 +125,7 @@ namespace CCSDS
 
     // create primary header
     _create_primary_header(pu8_Buffer, e_PacketType, e_SequenceFlags, u16_APID, u16_SequenceCount,
-                           u16_SecondaryHeaderLength?true:false, (uint32_t)u16_SecondaryHeaderLength+(uint32_t)u16_PacketDataLength);
+                           u16_SecondaryHeaderLength?true:false, static_cast<uint32_t>(u16_SecondaryHeaderLength)+static_cast<uint32_t>(u16_PacketDataLength));
     
     if(u16_SecondaryHeaderLength>0)
       memcpy(&pu8_Buffer[PrimaryHdrSize], pu8_SecondaryHeaderData, u16_SecondaryHeaderLength);
@@ -152,8 +152,8 @@ namespace CCSDS
    * @retval 0  No packet could be created
    * @return The size of the created packet in bytes as uint32_t
    */
-  uint32_t SpacePacket::createIdle(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                                   const uint16_t u16_SequenceCount, const uint16_t u16_TargetPacketSize)
+  uint32_t SpacePacket::createIdle(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                                   uint16_t u16_SequenceCount, uint16_t u16_TargetPacketSize)
   {
     if(!pu8_Buffer || (u32_BufferSize<u16_TargetPacketSize)
        || (u16_TargetPacketSize<PrimaryHdrSize+1))
@@ -163,8 +163,8 @@ namespace CCSDS
       return 0;
       
     // create primary header
-    _create_primary_header(pu8_Buffer, TM, Unsegmented, 0x7ff, u16_SequenceCount,
-                           false, (uint32_t)u16_TargetPacketSize-PrimaryHdrSize);
+    _create_primary_header(pu8_Buffer, ESpacePacketType::TM, ESpacePacketSequenceFlags::Unsegmented, 0x7ff, u16_SequenceCount,
+                           false, static_cast<uint32_t>(u16_TargetPacketSize)-PrimaryHdrSize);
     
     memset(&pu8_Buffer[PrimaryHdrSize], 0xff, u16_TargetPacketSize-PrimaryHdrSize);
     
@@ -174,15 +174,15 @@ namespace CCSDS
   
   
   int32_t SpacePacket::_create_primary_header(uint8_t *pu8_Buffer,
-                                              const ESpacePacketType e_PacketType, const ESpacePacketSequenceFlags e_SequenceFlags, const uint16_t u16_APID, const uint16_t u16_SequenceCount, const bool b_SecHeader,
-                                              const uint32_t u32_PacketDataLength)
+                                              ESpacePacketType e_PacketType, ESpacePacketSequenceFlags e_SequenceFlags, uint16_t u16_APID, uint16_t u16_SequenceCount, bool b_SecHeader,
+                                              uint32_t u32_PacketDataLength)
   {
-    pu8_Buffer[0] = (uint8_t)(((SpPacketVersion&0x7)<<5) | ((e_PacketType&0x1)<<4) | ((b_SecHeader?1:0)<<3) | ((u16_APID>>8)&0x7));
-    pu8_Buffer[1] = (uint8_t)(u16_APID&0xff);
-    pu8_Buffer[2] = (uint8_t)(((e_SequenceFlags&0x3)<<6) | ((u16_SequenceCount>>8)&0x3f));
-    pu8_Buffer[3] = (uint8_t)(u16_SequenceCount&0xff);
-    pu8_Buffer[4] = (uint8_t)((u32_PacketDataLength-1)>>8);
-    pu8_Buffer[5] = (uint8_t)((u32_PacketDataLength-1)&0xff);
+    pu8_Buffer[0] = static_cast<uint8_t>(((SpPacketVersion&0x7)<<5) | ((static_cast<uint8_t>(e_PacketType)&0x1)<<4) | ((b_SecHeader?1:0)<<3) | ((u16_APID>>8)&0x7));
+    pu8_Buffer[1] = static_cast<uint8_t>(u16_APID&0xff);
+    pu8_Buffer[2] = static_cast<uint8_t>(((static_cast<uint8_t>(e_SequenceFlags)&0x3)<<6) | ((u16_SequenceCount>>8)&0x3f));
+    pu8_Buffer[3] = static_cast<uint8_t>(u16_SequenceCount&0xff);
+    pu8_Buffer[4] = static_cast<uint8_t>((u32_PacketDataLength-1)>>8);
+    pu8_Buffer[5] = static_cast<uint8_t>((u32_PacketDataLength-1)&0xff);
     
     return 0;
   }
@@ -214,7 +214,7 @@ namespace CCSDS
    * @param pu8_Buffer      The data buffer which is to parse
    * @param u32_BufferSize  The size of the data buffer
    */
-  void SpacePacket::process(const uint8_t *pu8_Buffer, const uint32_t u32_BufferSize)
+  void SpacePacket::process(const uint8_t *pu8_Buffer, uint32_t u32_BufferSize)
   {
     if((u32_BufferSize==0) || !pu8_Buffer)
       return;
@@ -224,29 +224,29 @@ namespace CCSDS
       switch(mu32_Index)
       {
         case 0:
-          mu8_PacketVersionNumber = (uint8_t)((pu8_Buffer[i]&0xe0)>>5);
-          me_PacketType = (ESpacePacketType)((pu8_Buffer[i]&0x10)>>4);
+          mu8_PacketVersionNumber = static_cast<uint8_t>((pu8_Buffer[i]&0xe0)>>5);
+          me_PacketType = static_cast<ESpacePacketType>((pu8_Buffer[i]&0x10)>>4);
           mb_SecHdrFlag = (((pu8_Buffer[i]&0x08)>>3)==1)?true:false;
-          mu16_APID = (uint16_t)((pu8_Buffer[i]&0x07)<<8);
+          mu16_APID = static_cast<uint16_t>((pu8_Buffer[i]&0x07)<<8);
           break;
         case 1:
-          mu16_APID |= (uint16_t)pu8_Buffer[i];
+          mu16_APID |= static_cast<uint16_t>(pu8_Buffer[i]);
           break;
         case 2:
-          me_SequenceFlags = (ESpacePacketSequenceFlags)((pu8_Buffer[i]&0xc0)>>6);;
-          mu16_PacketSequenceCount = (uint16_t)((pu8_Buffer[i]&0x003F)<<8);
+          me_SequenceFlags = static_cast<ESpacePacketSequenceFlags>((pu8_Buffer[i]&0xc0)>>6);
+          mu16_PacketSequenceCount = static_cast<uint16_t>((pu8_Buffer[i]&0x003F)<<8);
           break;
         case 3:
-          mu16_PacketSequenceCount |= (uint16_t)(pu8_Buffer[i]);
+          mu16_PacketSequenceCount |= static_cast<uint16_t>(pu8_Buffer[i]);
           break;
         case 4:
-          mu16_PacketDataLength = (uint16_t)(pu8_Buffer[i]<<8);
+          mu16_PacketDataLength = static_cast<uint16_t>(pu8_Buffer[i]<<8);
           break;
         case 5:
-          mu16_PacketDataLength |= (uint16_t)(pu8_Buffer[i]);
+          mu16_PacketDataLength |= static_cast<uint16_t>(pu8_Buffer[i]);
           break;
         default:
-          if(mu32_Index-SP_HEADER_SIZE<SP_MAX_DATA_SIZE)
+          if(mu32_Index-SP_HEADER_SIZE<CCSDS_SP_MAX_DATA_SIZE)
           {
             mau8_PacketData[mu32_Index-PrimaryHdrSize]=pu8_Buffer[i];
           }

@@ -5,7 +5,7 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 
@@ -21,7 +21,7 @@
 
 #include <inttypes.h>
 
-#define PUS_TC_DEFAULT_SEC_HEADER_SIZE  5
+const static uint8_t PUS_TC_DEFAULT_SEC_HEADER_SIZE = 5;
 
 
 namespace PUS 
@@ -50,10 +50,10 @@ namespace PUS
      * @param pu8_Data              Command data (parameters)
      * @param u32_DataSize          The size of the command data
      */
-    virtual void onTcReceived(const bool b_AckAcc, const bool b_AckStart, const bool b_AckProg, const bool b_AckComp,
-                                  const uint8_t u8_Service, const uint8_t u8_SubService,
-                                  const uint8_t u8_SourceID,
-                                  const uint8_t *pu8_Data, const uint32_t u32_DataSize) = 0;
+    virtual void onTcReceived(bool b_AckAcc, bool b_AckStart, bool b_AckProg, bool b_AckComp,
+                    uint8_t u8_Service, uint8_t u8_SubService,
+                    uint8_t u8_SourceID,
+                    const uint8_t *pu8_Data, uint32_t u32_DataSize) = 0;
   };
 
 
@@ -71,19 +71,19 @@ namespace PUS
     const static uint8_t MinSecHdrSize = 4;
     
   public:
-    enum CcsdsSecHeaderFlag
+    enum class ECcsdsSecHeaderFlag
     {
       Custom = 0,
       CCSDS = 1
     };
 
-    enum ChecksumType
+    enum class EChecksumType
     {
       None = 0, 
       StandardCRC = 1 // generator polynomial: g(x) = x^16 +x^12 + x^5 +1:
     };
     
-    enum Service
+    enum class EService
     {
       TelecommandVerificationService                =  1,
       DeviceCommandDistributionService              =  2,
@@ -112,29 +112,29 @@ namespace PUS
     TcActionInterface *mp_ActionInterface;
     
   public:
-    Tc(const uint8_t u8_SecdrSize = PUS_TC_DEFAULT_SEC_HEADER_SIZE, TcActionInterface *p_ActionInterface = nullptr);
+    Tc(uint8_t u8_SecdrSize = PUS_TC_DEFAULT_SEC_HEADER_SIZE, TcActionInterface *p_ActionInterface = nullptr);
     Tc(TcActionInterface *p_ActionInterface = nullptr);
     
     void setActionInterface(TcActionInterface *p_ActionInterface);
   
-    static uint32_t create(uint8_t *pu8_SecHdrBuffer, const uint32_t u32_SecHdrSize,
-                           uint8_t *pu8_PacketDataBuffer, const uint32_t u32_PacketDataSize,
-                           const bool b_AckAcc, const bool b_AckStart, const bool b_AckProg, const bool b_AckComp,
-                           const uint8_t u8_Service, const uint8_t u8_SubService,
-                           const uint8_t u8_SourceID,
-                           const uint8_t *pu8_Data, const uint32_t u32_DataSize);
+    static uint32_t create(uint8_t *pu8_SecHdrBuffer, uint32_t u32_SecHdrSize,
+                 uint8_t *pu8_PacketDataBuffer, uint32_t u32_PacketDataSize,
+                 bool b_AckAcc, bool b_AckStart, bool b_AckProg, bool b_AckComp,
+                 uint8_t u8_Service, uint8_t u8_SubService,
+                 uint8_t u8_SourceID,
+                 const uint8_t *pu8_Data, uint32_t u32_DataSize);
     
     // sp processing
-    int32_t process(const uint8_t *pu8_Buffer, const uint32_t u32_BufferSize);
+    int32_t process(const uint8_t *pu8_Buffer, uint32_t u32_BufferSize);
     
   private:
-    static uint32_t _create_secondary_header(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                                            const bool b_AckAcc, const bool b_AckStart, const bool b_AckProg, const bool b_AckComp,
-                                            const uint8_t u8_Service, const uint8_t u8_SubService,
-                                            const uint8_t u8_SourceID);
+    static uint32_t _create_secondary_header(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                        bool b_AckAcc, bool b_AckStart, bool b_AckProg, bool b_AckComp,
+                        uint8_t u8_Service, uint8_t u8_SubService,
+                        uint8_t u8_SourceID);
     
   public:
-    static uint16_t calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize);
+    static uint16_t calcCRC(const uint8_t *pu8_Buffer, uint16_t u16_BufferSize);
   };
   
 }

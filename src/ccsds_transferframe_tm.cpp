@@ -5,7 +5,7 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 #include <string.h>
@@ -66,15 +66,15 @@ namespace CCSDS
    * @retval 0  No packet could be created
    * @return The size of the created packet in bytes as uint32_t
    */
-  uint32_t TransferframeTm::create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                                   const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                                   const uint8_t u8_MasterChannelFrameCount, const uint8_t u8_VirtualChannelFrameCount,
-                                   const uint16_t u16_FirstHdrPtr,
-                                   const uint8_t *pu8_Data, const uint16_t u16_DataSize,
-                                   const uint32_t u32_OCF)
+  uint32_t TransferframeTm::create(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                                   uint16_t u16_SpacecraftID, uint8_t u8_VirtualChannelID,
+                                   uint8_t u8_MasterChannelFrameCount, uint8_t u8_VirtualChannelFrameCount,
+                                   uint16_t u16_FirstHdrPtr,
+                                   const uint8_t *pu8_Data, uint16_t u16_DataSize,
+                                   uint32_t u32_OCF)
   {
     uint16_t u16_AvailableDataSize;
-#if TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF == 1
     uint16_t u16_CRC;
 #endif
     
@@ -102,17 +102,17 @@ namespace CCSDS
     if(u16_AvailableDataSize>u16_DataSize)
       memset(&pu8_Buffer[PrimaryHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
     
-#if TF_USE_OCF == 1
-    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize] = (uint8_t)(u32_OCF>>24);
-    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+1] = (uint8_t)(u32_OCF>>16);
-    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+2] = (uint8_t)(u32_OCF>>8);
-    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+3] = (uint8_t)(u32_OCF&0xff);
+#if CCSDS_TF_USE_OCF == 1
+    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize] = static_cast<uint8_t>(u32_OCF>>24);
+    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+1] = static_cast<uint8_t>(u32_OCF>>16);
+    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+2] = static_cast<uint8_t>(u32_OCF>>8);
+    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+3] = static_cast<uint8_t>(u32_OCF&0xff);
 #endif
     
-#if TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF == 1
     u16_CRC = Transferframe::calcCRC(pu8_Buffer, TfSize-2);
-    pu8_Buffer[TfSize-2]   = (uint8_t)(u16_CRC>>8);
-    pu8_Buffer[TfSize-1] = (uint8_t)(u16_CRC&0xff);
+    pu8_Buffer[TfSize-2]   = static_cast<uint8_t>(u16_CRC>>8);
+    pu8_Buffer[TfSize-1] = static_cast<uint8_t>(u16_CRC&0xff);
 #endif
     
     return TfSize;
@@ -137,13 +137,13 @@ namespace CCSDS
    * @retval 0  No packet could be created
    * @return The size of the created packet in bytes as uint32_t
    */
-  uint32_t TransferframeTm::createIdle(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                                       const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                                       const uint8_t u8_MasterChannelFrameCount, const uint8_t u8_VirtualChannelFrameCount,
-                                       const uint32_t u32_OCF)
+  uint32_t TransferframeTm::createIdle(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                                       uint16_t u16_SpacecraftID, uint8_t u8_VirtualChannelID,
+                                       uint8_t u8_MasterChannelFrameCount, uint8_t u8_VirtualChannelFrameCount,
+                                       uint32_t u32_OCF)
   {
     uint16_t u16_AvailableDataSize;
-#if TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF == 1
     uint16_t u16_CRC;
 #endif
     
@@ -161,17 +161,17 @@ namespace CCSDS
     
     memset(&pu8_Buffer[PrimaryHdrSize], 0xCA, u16_AvailableDataSize);
     
-#if TF_USE_OCF == 1
-    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize] = (uint8_t)(u32_OCF>>24);
-    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+1] = (uint8_t)(u32_OCF>>16);
-    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+2] = (uint8_t)(u32_OCF>>8);
-    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+3] = (uint8_t)(u32_OCF&0xff);
+#if CCSDS_TF_USE_OCF == 1
+    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize] = static_cast<uint8_t>(u32_OCF>>24);
+    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+1] = static_cast<uint8_t>(u32_OCF>>16);
+    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+2] = static_cast<uint8_t>(u32_OCF>>8);
+    pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+3] = static_cast<uint8_t>(u32_OCF&0xff);
 #endif
     
-#if TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF == 1
     u16_CRC = Transferframe::calcCRC(pu8_Buffer, TfSize-2);
-    pu8_Buffer[TfSize-2]   = (uint8_t)(u16_CRC>>8);
-    pu8_Buffer[TfSize-1] = (uint8_t)(u16_CRC&0xff);
+    pu8_Buffer[TfSize-2]   = static_cast<uint8_t>(u16_CRC>>8);
+    pu8_Buffer[TfSize-1] = static_cast<uint8_t>(u16_CRC&0xff);
 #endif
     
     return TfSize;
@@ -180,18 +180,18 @@ namespace CCSDS
   
   
   int32_t TransferframeTm::_createPrimaryHeader(uint8_t *pu8_Buffer,
-                                                const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID, const bool b_OcfFlag,
-                                                const uint8_t u8_MasterChannelFrameCount, const uint8_t u8_VirtualChannelFrameCount,
-                                                const bool b_TFSecHdrFlag, const bool b_SyncFlag, const bool b_PacketOrderFlag,
-                                                const uint8_t u8_SegLengthID, const uint16_t u16_FirstHdrPtr)
+                                                uint16_t u16_SpacecraftID, uint8_t u8_VirtualChannelID, bool b_OcfFlag,
+                                                uint8_t u8_MasterChannelFrameCount, uint8_t u8_VirtualChannelFrameCount,
+                                                bool b_TFSecHdrFlag, bool b_SyncFlag, bool b_PacketOrderFlag,
+                                                uint8_t u8_SegLengthID, uint16_t u16_FirstHdrPtr)
   {
-    pu8_Buffer[0] = (uint8_t)(((TmTfVersionNumber&0x3)<<6) | ((u16_SpacecraftID>>4)&0x3F));
-    pu8_Buffer[1] = (uint8_t)(((u16_SpacecraftID&0xF)<<4) | ((u8_VirtualChannelID&0x7)<<1) | (b_OcfFlag?1:0)) ;
+    pu8_Buffer[0] = static_cast<uint8_t>(((TmTfVersionNumber&0x3)<<6) | ((u16_SpacecraftID>>4)&0x3F));
+    pu8_Buffer[1] = static_cast<uint8_t>(((u16_SpacecraftID&0xF)<<4) | ((u8_VirtualChannelID&0x7)<<1) | (b_OcfFlag?1:0)) ;
     pu8_Buffer[2] = u8_MasterChannelFrameCount;
     pu8_Buffer[3] = u8_VirtualChannelFrameCount;
-    pu8_Buffer[4] = (uint8_t)(((b_TFSecHdrFlag?1:0)<<7) | ((b_SyncFlag?1:0)<<6) | ((b_PacketOrderFlag?1:0)<<5)
+    pu8_Buffer[4] = static_cast<uint8_t>(((b_TFSecHdrFlag?1:0)<<7) | ((b_SyncFlag?1:0)<<6) | ((b_PacketOrderFlag?1:0)<<5)
                               | ((u8_SegLengthID&0x3)<<3) | ((u16_FirstHdrPtr>>8)&0x7));
-    pu8_Buffer[5] = (uint8_t)(u16_FirstHdrPtr&0xff);
+    pu8_Buffer[5] = static_cast<uint8_t>(u16_FirstHdrPtr&0xff);
     
     return 0;
   }
@@ -242,19 +242,19 @@ namespace CCSDS
     uint32_t u32_OCF=0x00;
     
     
-    u16_SpacecraftID = (uint16_t)((mau8_Buffer[0]&0x3f)<<4) | (uint16_t)((mau8_Buffer[1]&0xf0)>>4);
-    u8_VirtualChannelID = (uint8_t)((mau8_Buffer[1]&0x0e)>>1);
+    u16_SpacecraftID = static_cast<uint16_t>((mau8_Buffer[0]&0x3f)<<4) | static_cast<uint16_t>((mau8_Buffer[1]&0xf0)>>4);
+    u8_VirtualChannelID = static_cast<uint8_t>((mau8_Buffer[1]&0x0e)>>1);
     b_OcfFlag = (mau8_Buffer[1]&0x01)?true:false;
     u8_MasterChannelFrameCount = mau8_Buffer[2];
     u8_VirtualChannelFrameCount = mau8_Buffer[3];
     b_TFSecHdrFlag = (mau8_Buffer[4]&0x80)?true:false;
-    u16_FirstHdrPtr = (uint16_t)((mau8_Buffer[4]&0x03)<<8) | (uint16_t)mau8_Buffer[5];
+    u16_FirstHdrPtr = static_cast<uint16_t>((mau8_Buffer[4]&0x03)<<8) | static_cast<uint16_t>(mau8_Buffer[5]);
     
-#if TF_USE_OCF == 1
+#if CCSDS_TF_USE_OCF == 1
     if(UseOCF&&b_OcfFlag)
     {
-      uint32_t u32_OCFPos=TM_TF_TOTAL_SIZE-OcfSize-(UseFECF?FecfSize:0);
-      u32_OCF = ((uint32_t)mau8_Buffer[u32_OCFPos]<<24) | ((uint32_t)mau8_Buffer[u32_OCFPos+1]<<16) | ((uint32_t)mau8_Buffer[u32_OCFPos+2]<<8) | (uint32_t)mau8_Buffer[u32_OCFPos+3];
+      uint32_t u32_OCFPos=CCSDS_TM_TF_TOTAL_SIZE-OcfSize-(UseFECF?FecfSize:0);
+      u32_OCF = (static_cast<uint32_t>(mau8_Buffer[u32_OCFPos])<<24) | (static_cast<uint32_t>(mau8_Buffer[u32_OCFPos+1])<<16) | (static_cast<uint32_t>(mau8_Buffer[u32_OCFPos+2])<<8) | static_cast<uint32_t>(mau8_Buffer[u32_OCFPos+3]);
     }
 #endif
     
@@ -263,7 +263,7 @@ namespace CCSDS
       mp_ActionInterface->onTransferframeTmReceived(u16_SpacecraftID, u8_VirtualChannelID,
                     u8_MasterChannelFrameCount, u8_VirtualChannelFrameCount,
                     b_TFSecHdrFlag, u16_FirstHdrPtr,
-                    &mau8_Buffer[PrimaryHdrSize], TM_TF_TOTAL_SIZE-PrimaryHdrSize-((UseOCF&&b_OcfFlag)?OcfSize:0)-(UseFECF?FecfSize:0),
+                    &mau8_Buffer[PrimaryHdrSize], CCSDS_TM_TF_TOTAL_SIZE-PrimaryHdrSize-((UseOCF&&b_OcfFlag)?OcfSize:0)-(UseFECF?FecfSize:0),
                     u32_OCF);
     }
   }

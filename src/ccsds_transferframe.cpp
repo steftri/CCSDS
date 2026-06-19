@@ -5,7 +5,7 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 #include "ccsds_transferframe.h"
@@ -84,7 +84,7 @@ namespace CCSDS
    * @retval  0   If the buffer was parsed
    * @retval -1   If fhe u16_DataSize is 0 or the pu8_Data is NULL
    */
-  int32_t Transferframe::process(const uint8_t *pu8_Data, const uint16_t u16_DataSize)
+  int32_t Transferframe::process(const uint8_t *pu8_Data, uint16_t u16_DataSize)
   {
     uint16_t u16_MaxTfSize = _getMaxTfSize();
     uint8_t *pu8_Buffer = _getTfBufferAddr();
@@ -132,7 +132,7 @@ namespace CCSDS
         //   cout << '>';
       }
       
-      if(mu16_Index==SyncSize+(uint32_t)u16_PrimaryHdrSize)
+      if(mu16_Index==SyncSize+static_cast<uint32_t>(u16_PrimaryHdrSize))
       {
         //  cout << 'H';
         //displaybuffer(pu8_Buffer, u16_PrimaryHdrSize);
@@ -153,7 +153,7 @@ namespace CCSDS
         //  displaybuffer(pu8_Buffer, mu16_FrameLength+1);
         //  cout << endl << "  ";
         
-#if TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF == 1
         b_Valid = _checkCRC();
         if(!b_Valid && (mu16_ChecksumErrorCount<0xffff))
           mu16_ChecksumErrorCount++;
@@ -237,7 +237,7 @@ namespace CCSDS
     uint16_t u16_FrameCRC;
     uint16_t u16_CalcCRC;
 
-    u16_FrameCRC = (uint16_t)(pu8_Buffer[mu16_FrameLength+1-2]<<8) | (uint16_t)pu8_Buffer[mu16_FrameLength+1-1];
+    u16_FrameCRC = static_cast<uint16_t>(pu8_Buffer[mu16_FrameLength+1-2]<<8) | static_cast<uint16_t>(pu8_Buffer[mu16_FrameLength+1-1]);
     u16_CalcCRC = Transferframe::calcCRC(pu8_Buffer, mu16_FrameLength+1-2);
     
     //   printf("[0x%04x/0x%04x]", u16_FrameCRC, u16_CalcCRC);
@@ -247,7 +247,7 @@ namespace CCSDS
   
   
   
-  uint16_t Transferframe::calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize)
+  uint16_t Transferframe::calcCRC(const uint8_t *pu8_Buffer, uint16_t u16_BufferSize)
   {
     uint16_t u16_CRC=0xffff;
     uint16_t u16_DataStreamXorBit15;
@@ -261,7 +261,7 @@ namespace CCSDS
       for(uint32_t u8_BitPos = 0; u8_BitPos<8; u8_BitPos++)
       {
         u16_DataStreamXorBit15 = ((pu8_Buffer[u16_BytePos]>>(7-u8_BitPos))&0x1) ^ ((u16_CRC>>15)&0x1);
-        u16_CRC = (uint16_t)((u16_CRC<<1) ^ ((u16_DataStreamXorBit15<<12) | (u16_DataStreamXorBit15<<5) | (u16_DataStreamXorBit15)));
+        u16_CRC = static_cast<uint16_t>((u16_CRC<<1) ^ ((u16_DataStreamXorBit15<<12) | (u16_DataStreamXorBit15<<5) | u16_DataStreamXorBit15));
       }
     }
     

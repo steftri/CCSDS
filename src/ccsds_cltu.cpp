@@ -5,7 +5,7 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 #include <string.h>
@@ -51,8 +51,8 @@ namespace CCSDS
    * @return     The size of the CLTU sequence if sucessfull
    * @retval  0  If the buffer size is not sufficient or an other error occured
    */
-  uint32_t Cltu::create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                        const uint8_t *pu8_Data, const uint16_t u16_DataSize)
+  uint32_t Cltu::create(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                        const uint8_t *pu8_Data, uint16_t u16_DataSize)
   {
     uint32_t u32_RequiredBufferSize;
     uint16_t u16_BlockNr;
@@ -102,7 +102,7 @@ namespace CCSDS
    * @param pu8_Data     The data buffer which is to parse
    * @param u16_DataSize The size of the data buffer
    */
-  void Cltu::process(const uint8_t *pu8_Data, const uint16_t u16_DataSize)
+  void Cltu::process(const uint8_t *pu8_Data, uint16_t u16_DataSize)
   {
     const uint8_t au8_Sync[StartSequenceSize]={0xeb, 0x90};
 
@@ -165,7 +165,7 @@ namespace CCSDS
   
   
   
-  uint8_t Cltu::calcCRC(const uint8_t *pu8_Buffer, const uint8_t u8_BufferSize)
+  uint8_t Cltu::calcCRC(const uint8_t *pu8_Buffer, uint8_t u8_BufferSize)
   {
     uint8_t u8_CRC=0x00;
     uint8_t u8_DataStreamXorBit6;
@@ -179,7 +179,7 @@ namespace CCSDS
       for(uint32_t u8_BitPos = 0; u8_BitPos<8; u8_BitPos++)
       {
         u8_DataStreamXorBit6 = ((pu8_Buffer[u8_BytePos]>>(7-u8_BitPos))&0x1) ^ ((u8_CRC>>6)&0x1);
-        u8_CRC = (uint8_t)(((u8_CRC<<1)&0x7f) ^ ((u8_DataStreamXorBit6<<6) | (u8_DataStreamXorBit6<<2) | (u8_DataStreamXorBit6)));
+        u8_CRC = static_cast<uint8_t>(((u8_CRC<<1)&0x7f) ^ ((u8_DataStreamXorBit6<<6) | (u8_DataStreamXorBit6<<2) | u8_DataStreamXorBit6));
       }
     }
     

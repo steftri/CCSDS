@@ -5,7 +5,7 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2023 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 #ifndef _CCSDS_TRANSFERFRAME_H_
@@ -30,15 +30,6 @@
 #include "configCCSDS.h"
 
 
-#ifdef configTF_USE_OCF
-#define TF_USE_FECF configTF_USE_FECF
-#else
-#define TF_USE_FECF 1
-#endif
-
-
-
-
 #define TF_SYNC_SIZE 4
 
 namespace CCSDS 
@@ -58,7 +49,7 @@ namespace CCSDS
   protected:
     const static uint8_t SyncSize = TF_SYNC_SIZE;
     const static uint8_t FecfSize = 2;
-    const static bool UseFECF = (TF_USE_FECF)?true:false;  // Frame error control field (CRC)
+    const static bool UseFECF = CCSDS_TF_USE_FECF != 0;  // Frame error control field (CRC)
     
     uint16_t mu16_Index;
     uint16_t mu16_FrameLength;
@@ -69,7 +60,7 @@ namespace CCSDS
     
   public:
     void setSync(void);
-    int32_t process(const uint8_t *pu8_Data, const uint16_t u16_DataSize);
+    int32_t process(const uint8_t *pu8_Data, uint16_t u16_DataSize);
     uint16_t getSyncErrorCount(void);
     uint16_t getChecksumErrorCount(void);
     uint16_t getOverflowErrorCount(void);
@@ -78,7 +69,7 @@ namespace CCSDS
   protected:
     Transferframe(void);
     bool _checkCRC(void);
-    static uint16_t calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize);
+    static uint16_t calcCRC(const uint8_t *pu8_Buffer, uint16_t u16_BufferSize);
     
   private:
     virtual void _processFrame(void) = 0;

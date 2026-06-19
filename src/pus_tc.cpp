@@ -5,7 +5,7 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 #include <string.h>
@@ -36,7 +36,7 @@ namespace PUS
    * @param u8_SecHdrSize       The size of the secondary header (default is 5)
    * @param p_ActionInterface   A pointer to the implementation of the action interface
    */
-  Tc::Tc(const uint8_t u8_SecHdrSize, TcActionInterface *p_ActionInterface)
+  Tc::Tc(uint8_t u8_SecHdrSize, TcActionInterface *p_ActionInterface)
     : mp_ActionInterface{p_ActionInterface}
   {
     if(u8_SecHdrSize>=MinSecHdrSize)
@@ -92,12 +92,12 @@ namespace PUS
    * @retval 0  No packet could be created
    * @return The size of the created data (without header)
    */
-  uint32_t Tc::create(uint8_t *pu8_SecHdrBuffer, const uint32_t u32_SecHdrSize,
-                      uint8_t *pu8_PacketDataBuffer, const uint32_t u32_PacketDataSize,
-                      const bool b_AckAcc, const bool b_AckStart, const bool b_AckProg, const bool b_AckComp,
-                      const uint8_t u8_Service, const uint8_t u8_SubService,
-                      const uint8_t u8_SourceID,
-                      const uint8_t *pu8_Data, const uint32_t u32_DataSize)
+  uint32_t Tc::create(uint8_t *pu8_SecHdrBuffer, uint32_t u32_SecHdrSize,
+                      uint8_t *pu8_PacketDataBuffer, uint32_t u32_PacketDataSize,
+                      bool b_AckAcc, bool b_AckStart, bool b_AckProg, bool b_AckComp,
+                      uint8_t u8_Service, uint8_t u8_SubService,
+                      uint8_t u8_SourceID,
+                      const uint8_t *pu8_Data, uint32_t u32_DataSize)
   {
     if(!pu8_SecHdrBuffer || (u32_SecHdrSize<MinSecHdrSize))
       return 0;
@@ -113,13 +113,13 @@ namespace PUS
   }
   
 
-  uint32_t Tc::_create_secondary_header(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                                      const bool b_AckAcc, const bool b_AckStart, const bool b_AckProg, const bool b_AckComp,
-                                      const uint8_t u8_Service, const uint8_t u8_SubService,
-                                      const uint8_t u8_SourceID)
+  uint32_t Tc::_create_secondary_header(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                                      bool b_AckAcc, bool b_AckStart, bool b_AckProg, bool b_AckComp,
+                                      uint8_t u8_Service, uint8_t u8_SubService,
+                                      uint8_t u8_SourceID)
   {
-    pu8_Buffer[SEC_HDR_DATA_FIELD_HDR_FLAGS_POS] = (uint8_t)((((uint8_t)(CcsdsSecHeaderFlag::Custom)&0x1)<<SEC_HDR_DFH_SEC_HDR_FLAG_POS) 
-                                    | (uint8_t)((PacketVersion&0x7)<<SEC_HDR_DFH_PUS_VERSION_POS)
+    pu8_Buffer[SEC_HDR_DATA_FIELD_HDR_FLAGS_POS] = static_cast<uint8_t>(((static_cast<uint8_t>(ECcsdsSecHeaderFlag::Custom)&0x1)<<SEC_HDR_DFH_SEC_HDR_FLAG_POS) 
+                                    | ((PacketVersion&0x7)<<SEC_HDR_DFH_PUS_VERSION_POS)
                                     | ((b_AckAcc?1:0)<<SEC_HDR_DFH_FLAG_ACK_ACC_POS) 
                                     | ((b_AckStart?1:0)<<SEC_HDR_DFH_FLAG_ACK_START_POS) 
                                     | ((b_AckProg?1:0)<<SEC_HDR_DFH_FLAG_ACK_PROG_POS) 
@@ -145,7 +145,7 @@ namespace PUS
    * @retval  0   If the buffer was extracted successfully
    * @retval -1   If fhe u32_BufferSize is 0 or the pu8_Buffer is nullptr
    */
-  int32_t Tc::process(const uint8_t *pu8_Buffer, const uint32_t u32_BufferSize)
+  int32_t Tc::process(const uint8_t *pu8_Buffer, uint32_t u32_BufferSize)
   {
     bool b_AckAcc;
     bool b_AckStart;
@@ -170,7 +170,7 @@ namespace PUS
     if(mu8_SecHdrSize>SEC_HDR_DATA_FIELD_HDR_SOURCEID_POS)
       u8_SourceID = pu8_Buffer[SEC_HDR_DATA_FIELD_HDR_SOURCEID_POS];
     
-    if(nullptr!=mp_ActionInterface)
+    if(mp_ActionInterface!=nullptr)
     {
       mp_ActionInterface->onTcReceived(b_AckAcc, b_AckStart, b_AckProg, b_AckComp,
                                        u8_Service, u8_SubService, u8_SourceID,
@@ -181,7 +181,7 @@ namespace PUS
   
   
   
-  uint16_t Tc::calcCRC(const uint8_t *pu8_Buffer, const uint16_t u16_BufferSize)
+  uint16_t Tc::calcCRC(const uint8_t *pu8_Buffer, uint16_t u16_BufferSize)
   {
     uint16_t u16_Syndrome=0xffff;
     
@@ -193,7 +193,7 @@ namespace PUS
       {
         if((u8_Data&0x80)^((u16_Syndrome&0x8000)>>8))
         {
-          u16_Syndrome = (uint16_t)((u16_Syndrome<<1)^0x1021);
+          u16_Syndrome = static_cast<uint16_t>((u16_Syndrome<<1)^0x1021);
         }
         else
         {

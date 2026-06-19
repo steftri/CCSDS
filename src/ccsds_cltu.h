@@ -5,7 +5,7 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2023 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 #ifndef _CCSDS_CLTU_H_
@@ -27,7 +27,7 @@
 #include "ccsds_transferframe_tc.h"
 
 #define CLTU_DATA_BLOCK_SIZE  7
-#define CLTU_MAX_SIZE (2+((TC_TF_MAX_SIZE+6)/7)*8+8)
+#define CLTU_MAX_SIZE (2+((CCSDS_TC_TF_MAX_SIZE+6)/7)*8+8)
 
 
 namespace CCSDS
@@ -93,13 +93,13 @@ namespace CCSDS
     void setActionInterface(CltuActionInterface *p_ActionInterface);
     
   public:
-   static uint32_t create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                           const uint8_t *pu8_Data, const uint16_t u16_DataSize);
+   static uint32_t create(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                           const uint8_t *pu8_Data, uint16_t u16_DataSize);
     
-    void process(const uint8_t *pu8_Data, const uint16_t u16_DataSize);
+    void process(const uint8_t *pu8_Data, uint16_t u16_DataSize);
     
   private:
-    static uint8_t calcCRC(const uint8_t *pu8_Buffer, const uint8_t u8_BufferSize);
+    static uint8_t calcCRC(const uint8_t *pu8_Buffer, uint8_t u8_BufferSize);
   };
     
 }
