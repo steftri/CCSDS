@@ -8,11 +8,12 @@ TransferframeTm	KEYWORD1
 TransferframeTc	KEYWORD1
 SpacePacket	KEYWORD1
 Clcw	KEYWORD1
+Tc	KEYWORD1
 
 
 # Methods and Functions (KEYWORD2)
 # Cltu
-setCallbacks	KEYWORD2
+setActionInterface	KEYWORD2
 create	KEYWORD2
 process	KEYWORD2
 
@@ -23,12 +24,12 @@ getSyncErrorCount	KEYWORD2
 getChecksumErrorCount	KEYWORD2
 getOverflowErrorCount	KEYWORD2
 clearErrorCounters	KEYWORD2
-setCallback	KEYWORD2
+setActionInterface	KEYWORD2
 create	KEYWORD2
 createIdle	KEYWORD2
 
 # SpacePackets
-setCallback	KEYWORD2
+setActionInterface	KEYWORD2
 create	KEYWORD2
 create	KEYWORD2
 createIdle	KEYWORD2
@@ -36,11 +37,18 @@ process	KEYWORD2
 reset	KEYWORD2
 getSyncErrorCount	KEYWORD2
 getOverflowErrorCount	KEYWORD2
+getVersionErrorCount	KEYWORD2
 clearErrorCounters	KEYWORD2
 
 # Clcw
 create	KEYWORD2
 extract	KEYWORD2
+
+# PUS Tc
+setActionInterface	KEYWORD2
+create	KEYWORD2
+process	KEYWORD2
+calcCRC	KEYWORD2
 
 # Instances (KEYWORD2)
 

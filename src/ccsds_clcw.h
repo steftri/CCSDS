@@ -4,9 +4,8 @@
  * @brief     Include file of the Communications Link Control Word (CLCW) class
  *
  * @author    Stefan Trippler
- * @date      2022-04-03
  *
- * @copyright Copyright (C) 2021-2023 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 #ifndef _CCSDS_CLCW_H_
@@ -33,13 +32,13 @@ namespace CCSDS
     const static uint8_t COPinEffect = 0x1;
     
   public:
-    static uint32_t create(const uint8_t u8_StatusField, const uint8_t u8_VirtualChannelID,
-                           const bool b_NoRfAvail, const bool b_NoBitLock, const bool b_LockOut, const bool b_Wait, const bool b_Retransmit,
-                           const uint8_t u8_FarmBCounter, const uint8_t u8_ReportValue);
+    static uint32_t create(uint8_t u8_StatusField, uint8_t u8_VirtualChannelID,
+                           bool b_NoRfAvail, bool b_NoBitLock, bool b_LockOut, bool b_Wait, bool b_Retransmit,
+                           uint8_t u8_FarmBCounter, uint8_t u8_ReportValue);
     
     static int32_t extract(uint8_t *pu8_StatusField, uint8_t *pu8_VirtualChannelID,
                            bool *pb_NoRfAvail, bool *pb_NoBitLock, bool *pb_LockOut, bool *pb_Wait, bool *pb_Retransmit,
-                           uint8_t *pu8_FarmBCounter, uint8_t *pu8_ReportValue, const uint32_t u32_CLCW);
+                           uint8_t *pu8_FarmBCounter, uint8_t *pu8_ReportValue, uint32_t u32_CLCW);
   };
   
 }
