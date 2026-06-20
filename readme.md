@@ -63,7 +63,12 @@ A command is identified by service and subservice numbers. Some services are pre
 
 ## Integration
 
-TODO
+This library is integrated in the SECCT framework and used as the protocol layer for TM/TC packetization and transfer frame handling.
+
+For a complete, working integration (host tests and Arduino examples), see the SECCT repository:
+[https://github.com/steftri/SECCT](https://github.com/steftri/SECCT)
+
+In SECCT, CCSDS is consumed through the SECCT abstraction layer (`secct`, `secct_payload`, `secct_mcs`) so applications can focus on payload generation and command handling.
 
 
 ## Configuration
@@ -105,7 +110,17 @@ build_flags =
 
 ## Usage
 
-TODO
+Within SECCT, typical usage is:
+
+1. Build telemetry payload data in SECCT payload classes.
+2. Let SECCT map payloads to CCSDS Space Packets (APID-based routing).
+3. Encapsulate packets into CCSDS TM/TC Transfer Frames for transport.
+
+Reference implementations are available in the SECCT examples:
+
+* `lib/SECCT/examples/tmtc_client_led/tmtc_client_led.ino`
+* `lib/SECCT/examples/tmtc_client_led_standalone/tmtc_client_led_standalone.ino`
+* `lib/SECCT/examples/tmtc_client_standalone/tmtc_client_standalone.ino`
 
 
 
