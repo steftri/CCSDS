@@ -153,7 +153,7 @@ namespace CCSDS
         //  displaybuffer(pu8_Buffer, mu16_FrameLength+1);
         //  cout << endl << "  ";
         
-#if CCSDS_TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF != 0
         b_Valid = _checkCRC();
         if(!b_Valid && (mu16_ChecksumErrorCount<0xffff))
           mu16_ChecksumErrorCount++;

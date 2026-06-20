@@ -58,9 +58,10 @@ namespace CCSDS
    *
    * @param pu8_Buffer           A pointer to the buffer where the space packet shall be stored
    * @param u32_BufferSize       The available size of the buffer
-   * @param e_PacketType         Identifies the type of Space Packet (SpacePacket::TM or SpacePacket::TC)
+   * @param e_PacketType         Identifies the type of Space Packet (ESpacePacketType::TM or ESpacePacketType::TC)
    * @param e_SequenceFlags      Identifies that a packet belongs to a sequence of packets
-   *                             (one of SpacePacket::Unsegmented, SpacePacket::FirstSegment, SpacePacket::ContinuationSegment, SpacePacket::LastSegment)
+   *                             (one of ESpacePacketSequenceFlags::Unsegmented, ESpacePacketSequenceFlags::FirstSegment, 
+   *                              ESpacePacketSequenceFlags::ContinuationSegment, ESpacePacketSequenceFlags::LastSegment)
    * @param u16_APID             The Application Identifier where this packet belongs to
    * @param u16_SequenceCount    The 14-bit sequence counter is handeled by the calling context and
    *                             must be specific for each APID
@@ -89,9 +90,10 @@ namespace CCSDS
    *
    * @param pu8_Buffer           A pointer to the buffer where the space packet shall be stored
    * @param u32_BufferSize       The available size of the buffer
-   * @param e_PacketType         Identifies the type of Space Packet (SpacePacket::TM or SpacePacket::TC)
+   * @param e_PacketType         Identifies the type of Space Packet (ESpacePacketType::TM or ESpacePacketType::TC)
    * @param e_SequenceFlags      Identifies that a packet belongs to a sequence of packets
-   *                             (one of SpacePacket::Unsegmented, SpacePacket::FirstSegment, SpacePacket::ContinuationSegment, SpacePacket::LastSegment)
+   *                             (one of ESpacePacketSequenceFlags::Unsegmented, ESpacePacketSequenceFlags::FirstSegment, 
+   *                              ESpacePacketSequenceFlags::ContinuationSegment, ESpacePacketSequenceFlags::LastSegment)
    * @param u16_APID             The application identifier (APID) defines where this packet belongs to
    * @param u16_SequenceCount    The 14-bit sequence counter is handeled by the calling context and
    *                             must be specific for each APID.

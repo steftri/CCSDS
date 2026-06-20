@@ -74,7 +74,7 @@ namespace CCSDS
                                    uint32_t u32_OCF)
   {
     uint16_t u16_AvailableDataSize;
-#if CCSDS_TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF != 0
     uint16_t u16_CRC;
 #endif
     
@@ -102,14 +102,14 @@ namespace CCSDS
     if(u16_AvailableDataSize>u16_DataSize)
       memset(&pu8_Buffer[PrimaryHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
     
-#if CCSDS_TF_USE_OCF == 1
+#if CCSDS_TF_USE_OCF != 0
     pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize] = static_cast<uint8_t>(u32_OCF>>24);
     pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+1] = static_cast<uint8_t>(u32_OCF>>16);
     pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+2] = static_cast<uint8_t>(u32_OCF>>8);
     pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+3] = static_cast<uint8_t>(u32_OCF&0xff);
 #endif
     
-#if CCSDS_TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF != 0
     u16_CRC = Transferframe::calcCRC(pu8_Buffer, TfSize-2);
     pu8_Buffer[TfSize-2]   = static_cast<uint8_t>(u16_CRC>>8);
     pu8_Buffer[TfSize-1] = static_cast<uint8_t>(u16_CRC&0xff);
@@ -143,7 +143,7 @@ namespace CCSDS
                                        uint32_t u32_OCF)
   {
     uint16_t u16_AvailableDataSize;
-#if CCSDS_TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF != 0
     uint16_t u16_CRC;
 #endif
     
@@ -161,16 +161,16 @@ namespace CCSDS
     
     memset(&pu8_Buffer[PrimaryHdrSize], 0xCA, u16_AvailableDataSize);
     
-#if CCSDS_TF_USE_OCF == 1
+#if CCSDS_TF_USE_OCF != 0
     pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize] = static_cast<uint8_t>(u32_OCF>>24);
     pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+1] = static_cast<uint8_t>(u32_OCF>>16);
     pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+2] = static_cast<uint8_t>(u32_OCF>>8);
     pu8_Buffer[TfSize-(UseFECF?FecfSize:0)-OcfSize+3] = static_cast<uint8_t>(u32_OCF&0xff);
 #endif
     
-#if CCSDS_TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF != 0
     u16_CRC = Transferframe::calcCRC(pu8_Buffer, TfSize-2);
-    pu8_Buffer[TfSize-2]   = static_cast<uint8_t>(u16_CRC>>8);
+    pu8_Buffer[TfSize-2] = static_cast<uint8_t>(u16_CRC>>8);
     pu8_Buffer[TfSize-1] = static_cast<uint8_t>(u16_CRC&0xff);
 #endif
     
@@ -250,7 +250,7 @@ namespace CCSDS
     b_TFSecHdrFlag = (mau8_Buffer[4]&0x80)?true:false;
     u16_FirstHdrPtr = static_cast<uint16_t>((mau8_Buffer[4]&0x03)<<8) | static_cast<uint16_t>(mau8_Buffer[5]);
     
-#if CCSDS_TF_USE_OCF == 1
+#if CCSDS_TF_USE_OCF != 0
     if(UseOCF&&b_OcfFlag)
     {
       uint32_t u32_OCFPos=CCSDS_TM_TF_TOTAL_SIZE-OcfSize-(UseFECF?FecfSize:0);

@@ -75,7 +75,7 @@ namespace CCSDS
                                    const uint8_t *pu8_Data, uint16_t u16_DataSize)
   {
     uint16_t u16_AvailableDataSize;
-#if CCSDS_TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF != 0
     uint16_t u16_CRC;
 #endif
 
@@ -110,7 +110,7 @@ namespace CCSDS
     //if(u16_AvailableDataSize>u16_DataSize)
     //  memset(&pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize], 0xCA, u16_AvailableDataSize-u16_DataSize);
     
-#if CCSDS_TF_USE_FECF == 1
+#if CCSDS_TF_USE_FECF != 0
     u16_CRC = Transferframe::calcCRC(pu8_Buffer, PrimaryHdrSize+SegmentHdrSize+u16_DataSize);
     pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize]   = static_cast<uint8_t>(u16_CRC>>8);
     pu8_Buffer[PrimaryHdrSize+SegmentHdrSize+u16_DataSize+1] = static_cast<uint8_t>(u16_CRC&0xff);
