@@ -1,5 +1,5 @@
 /*
-  Create Telemetry accoding to CCSDS standard
+  Process telecommand uplink data according to CCSDS standard
 
   This example code is in the public domain.
 
@@ -14,71 +14,131 @@
 
 using namespace CCSDS;
 
-
-void StartOfTransmissionCallback(void *p_Context);
-void CltuCallback(void *p_Context, const uint8_t *pu8_Data, const uint16_t u16_DataSize);
-void TcCallback(void *p_Context, const bool b_BypassFlag, const bool b_CtrlCmdFlag,
-                const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                const uint8_t u8_FrameSeqNumber,
-                const uint8_t *pu8_Data, const uint16_t u16_DataSize);
-void SpCallback(void *p_Context, const SpacePacket::PacketType e_PacketType, const SpacePacket::SequenceFlags e_SequenceFlags, const uint16_t u16_APID, const uint16_t u16_SequenceCount, const bool b_SecHeader,
-                const uint8_t *pu8_Data, const uint16_t u16_DataSize);
+class TcPipeline;
 
 
-Cltu g_Cltu(NULL, &StartOfTransmissionCallback, NULL, &CltuCallback);
-TransferframeTc g_Tc(NULL, &TcCallback);
-SpacePacket g_Sp(NULL, &SpCallback);
-
-
-
-void StartOfTransmissionCallback(void *p_Context)
+class SpacePacketPrinter : public SpacePacketActionInterface
 {
-  Serial.println("SOT");
-  g_Tc.setSync();
-}
-
-
-void CltuCallback(void *p_Context, const uint8_t *pu8_Data, const uint16_t u16_DataSize)
-{
-  Serial.print("CLTU DATA: ");
-  for(uint16_t i=0; i<u16_DataSize; i++)
+public:
+  void onSpacePacketReceived(ESpacePacketType e_PacketType,
+                             ESpacePacketSequenceFlags e_SequenceFlags,
+                             uint16_t u16_APID,
+                             uint16_t u16_SequenceCount,
+                             bool b_SecHeader,
+                             const uint8_t *pu8_PacketData,
+                             uint16_t u16_PacketDataLength) override
   {
-    Serial.print((uint32_t)pu8_Data[i], HEX);
-    Serial.print(' ');
+    Serial.println("SP DATA:");
+    Serial.print("  Type: ");
+    Serial.println(e_PacketType == ESpacePacketType::TM ? "TM" : "TC");
+    Serial.print("  SeqFlags: ");
+    Serial.println(static_cast<uint8_t>(e_SequenceFlags), HEX);
+    Serial.print("  APID: 0x");
+    Serial.println(u16_APID, HEX);
+    Serial.print("  SequenceCount: ");
+    Serial.println(u16_SequenceCount);
+    Serial.print("  SecondaryHeader: ");
+    Serial.println(b_SecHeader ? "yes" : "no");
+    Serial.print("  Payload: ");
+    for(uint16_t i = 0; i < u16_PacketDataLength; i++)
+    {
+      Serial.print(static_cast<uint32_t>(pu8_PacketData[i]), HEX);
+      Serial.print(' ');
+    }
+    Serial.println();
   }
-  Serial.println();
-  g_Tc.process((uint8_t*)pu8_Data, u16_DataSize);
-}
+};
 
 
-void TcCallback(void *p_Context, const bool b_BypassFlag, const bool b_CtrlCmdFlag,
-                const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                const uint8_t u8_FrameSeqNumber,
-                const uint8_t *pu8_Data, const uint16_t u16_DataSize)
+class TcFramePrinter : public TransferframeTcActionInterface
 {
-  Serial.print("TC DATA: ");
-  for(uint16_t i=0; i<u16_DataSize; i++)
+private:
+  SpacePacket *mp_Sp;
+
+public:
+  explicit TcFramePrinter(SpacePacket *p_Sp)
+    : mp_Sp{p_Sp}
   {
-    Serial.print((uint32_t)pu8_Data[i], HEX);
-    Serial.print(' ');
   }
-  Serial.println();
-  g_Sp.process(pu8_Data, u16_DataSize);
-}
+
+  void onTransferframeTcReceived(bool b_BypassFlag,
+                                 bool b_CtrlCmdFlag,
+                                 uint16_t u16_SpacecraftID,
+                                 uint8_t u8_VirtualChannelID,
+                                 uint8_t u8_FrameSeqNumber,
+                                 uint8_t u8_MAP,
+                                 const uint8_t *pu8_Data,
+                                 const uint16_t u16_DataSize) override
+  {
+    Serial.println("TC DATA:");
+    Serial.print("  BypassFlag: ");
+    Serial.println(b_BypassFlag ? "true" : "false");
+    Serial.print("  CtrlCmdFlag: ");
+    Serial.println(b_CtrlCmdFlag ? "true" : "false");
+    Serial.print("  SpacecraftID: 0x");
+    Serial.println(u16_SpacecraftID, HEX);
+    Serial.print("  VCID: ");
+    Serial.println(u8_VirtualChannelID);
+    Serial.print("  FrameSeq: ");
+    Serial.println(u8_FrameSeqNumber);
+    Serial.print("  MAP: ");
+    Serial.println(u8_MAP);
+    Serial.print("  Payload: ");
+    for(uint16_t i = 0; i < u16_DataSize; i++)
+    {
+      Serial.print(static_cast<uint32_t>(pu8_Data[i]), HEX);
+      Serial.print(' ');
+    }
+    Serial.println();
+
+    if(mp_Sp)
+      mp_Sp->process(pu8_Data, u16_DataSize);
+  }
+};
 
 
-
-void SpCallback(void *p_Context, const SpacePacket::PacketType e_PacketType, const SpacePacket::SequenceFlags e_SequenceFlags, const uint16_t u16_APID, const uint16_t u16_SequenceCount, const bool b_SecHeader,
-                const uint8_t *pu8_Data, const uint16_t u16_DataSize)
+class CltuPrinter : public CltuActionInterface
 {
-  Serial.print("SP DATA: ");
-  for(uint16_t i=0; i<u16_DataSize; i++)
+private:
+  TransferframeTc *mp_Tc;
+
+public:
+  explicit CltuPrinter(TransferframeTc *p_Tc)
+    : mp_Tc{p_Tc}
   {
-    Serial.print((uint32_t)pu8_Data[i], HEX);
-    Serial.print(' ');
   }
-  Serial.println();
-}
+
+  void onStartOfTransmission(void) override
+  {
+    Serial.println("SOT");
+    if(mp_Tc)
+      mp_Tc->setSync();
+  }
+
+  void onCltuDataReceived(const uint8_t *pu8_Data, const uint16_t u16_DataSize) override
+  {
+    Serial.print("CLTU DATA: ");
+    for(uint16_t i = 0; i < u16_DataSize; i++)
+    {
+      Serial.print(static_cast<uint32_t>(pu8_Data[i]), HEX);
+      Serial.print(' ');
+    }
+    Serial.println();
+
+    if(mp_Tc)
+      mp_Tc->process(pu8_Data, u16_DataSize);
+  }
+};
+
+
+SpacePacketPrinter g_SpPrinter;
+SpacePacket g_Sp(&g_SpPrinter);
+
+TcFramePrinter g_TcPrinter(&g_Sp);
+TransferframeTc g_Tc(&g_TcPrinter);
+
+CltuPrinter g_CltuPrinter(&g_Tc);
+Cltu g_Cltu(&g_CltuPrinter);
 
 
 // the setup routine runs once when you press reset:
