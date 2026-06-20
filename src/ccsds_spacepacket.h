@@ -5,7 +5,7 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2023 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 #ifndef _CCSDS_SPACEPACKET_H_
@@ -26,16 +26,9 @@
 
 #include "configCCSDS.h"
 
-#ifdef configSP_MAX_DATA_SIZE
-#define SP_MAX_DATA_SIZE configSP_MAX_DATA_SIZE
-#else 
-#define SP_MAX_DATA_SIZE 496
-#endif
-
-
 
 #define SP_HEADER_SIZE     6
-#define SP_MAX_TOTAL_SIZE  (SP_HEADER_SIZE+SP_MAX_DATA_SIZE)
+#define SP_MAX_TOTAL_SIZE  (SP_HEADER_SIZE+CCSDS_SP_MAX_DATA_SIZE)
 
 
 
@@ -45,23 +38,23 @@ namespace CCSDS
   /** The package type defines if a space packet contains
    *  a telecommand (TC) or telemetry (TM).
    */
-  typedef enum 
+  enum class ESpacePacketType
   {
     TM = 0, /**< Telemetry (downlink) */
     TC = 1  /**< Telecommand (uplink) */
-  } ESpacePacketType;
+  };
     
     
   /** If the data to be sent is more than it can be handeled in one single
    *  space packet, than these flags are used to identify the first and the last package.
    */
-  typedef enum 
+  enum class ESpacePacketSequenceFlags
   {
     ContinuationSegment = 0x0,  /**< If the package belongs to a sequence of packages, this flag identifies that this package is somewhere in the middle. */
     FirstSegment = 0x1,         /**< The first package of a sequence of packages mus be identified with this flag. */
     LastSegment = 0x2,          /**< This flag identifies the last package of a sequence. */
     Unsegmented = 0x3           /**< If the package is completly within one source packet, this flag is used. */
-  } ESpacePacketSequenceFlags;
+  };
 
 
   /**
@@ -84,10 +77,10 @@ namespace CCSDS
      * @param pu8_PacketData      A pointer to the data block which holds the content of the package
      * @param u16_PacketDataLength The size of the data block in bytes
      */
-    virtual void onSpacePacketReceived(const ESpacePacketType e_PacketType,
-                                       const ESpacePacketSequenceFlags e_SequenceFlags, const uint16_t u16_APID,
-                                       const uint16_t u16_SequenceCount, const bool b_SecHeader,
-                                       const uint8_t *pu8_PacketData, const uint16_t u16_PacketDataLength) = 0;
+    virtual void onSpacePacketReceived(ESpacePacketType e_PacketType,
+                       ESpacePacketSequenceFlags e_SequenceFlags, uint16_t u16_APID,
+                       uint16_t u16_SequenceCount, bool b_SecHeader,
+                       const uint8_t *pu8_PacketData, uint16_t u16_PacketDataLength) = 0;
   };
 
 
@@ -110,7 +103,7 @@ namespace CCSDS
   {
   public:
     static const int MaxSize = SP_MAX_TOTAL_SIZE;     /**< Maximum size of a space packet including header(s) */
-    static const int MaxDataSize = SP_MAX_DATA_SIZE;  /**< Maximum size of the data section of a space packet */
+    static const int MaxDataSize = CCSDS_SP_MAX_DATA_SIZE;  /**< Maximum size of the data section of a space packet */
     
   private:
     const static uint8_t SpPacketVersion = 0;
@@ -124,7 +117,7 @@ namespace CCSDS
     ESpacePacketSequenceFlags me_SequenceFlags;
     uint16_t mu16_PacketSequenceCount;
     uint16_t mu16_PacketDataLength;
-    uint8_t mau8_PacketData[SP_MAX_DATA_SIZE];
+    uint8_t mau8_PacketData[CCSDS_SP_MAX_DATA_SIZE];
     
     bool mb_Overflow;
     uint16_t mu16_SyncErrorCount;
@@ -139,20 +132,20 @@ namespace CCSDS
     void setActionInterface(SpacePacketActionInterface *p_ActionInterface);
         
     // SP generation
-    static uint32_t create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                           const ESpacePacketType e_PacketType, const ESpacePacketSequenceFlags e_SequenceFlags, const uint16_t u16_APID, const uint16_t u16_SequenceCount,
-                           const uint8_t *pu8_PacketData, const uint16_t u16_PacketDataLength);   // without secondary header
+    static uint32_t create(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                 ESpacePacketType e_PacketType, ESpacePacketSequenceFlags e_SequenceFlags, uint16_t u16_APID, uint16_t u16_SequenceCount,
+                 const uint8_t *pu8_PacketData, uint16_t u16_PacketDataLength);   // without secondary header
     
-    static uint32_t create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                           const ESpacePacketType e_PacketType, const ESpacePacketSequenceFlags e_SequenceFlags, const uint16_t u16_APID, const uint16_t u16_SequenceCount,
-                           const uint8_t *pu8_SecondaryHeaderData, const uint16_t u16_SecondaryHeaderLength,
-                           const uint8_t *pu8_PacketData, const uint16_t u16_PacketDataLength);
+    static uint32_t create(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                 ESpacePacketType e_PacketType, ESpacePacketSequenceFlags e_SequenceFlags, uint16_t u16_APID, uint16_t u16_SequenceCount,
+                 const uint8_t *pu8_SecondaryHeaderData, uint16_t u16_SecondaryHeaderLength,
+                 const uint8_t *pu8_PacketData, uint16_t u16_PacketDataLength);
     
-    static uint32_t createIdle(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                               const uint16_t u16_SequenceCount, const uint16_t u16_TargetPacketSize);
+    static uint32_t createIdle(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                   uint16_t u16_SequenceCount, uint16_t u16_TargetPacketSize);
     
     // sp processing
-    void process(const uint8_t *pu8_Buffer, const uint32_t u32_BufferSize);
+    void process(const uint8_t *pu8_Buffer, uint32_t u32_BufferSize);
     void reset(void);
     
     uint16_t getSyncErrorCount(void);
@@ -162,8 +155,8 @@ namespace CCSDS
     
   private:
     static int32_t _create_primary_header(uint8_t *pu8_Buffer,
-                                          const ESpacePacketType e_PacketType, const ESpacePacketSequenceFlags e_SequenceFlags, const uint16_t u16_APID, const uint16_t u16_SequenceCount, const bool b_SecHeader,
-                                          const uint32_t u32_PacketDataLength);
+                        ESpacePacketType e_PacketType, ESpacePacketSequenceFlags e_SequenceFlags, uint16_t u16_APID, uint16_t u16_SequenceCount, bool b_SecHeader,
+                        uint32_t u32_PacketDataLength);
   };
   
 }

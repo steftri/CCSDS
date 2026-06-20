@@ -6,7 +6,7 @@
  * @author    Stefan Trippler
  * @date      2022-04-03
  *
- * @copyright Copyright (C) 2021-2022 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 #include "ccsds_clcw.h"
@@ -31,18 +31,18 @@ namespace CCSDS
    *
    * @return                    The Communications Link Control Word (CLCW) as an uint32_t.
    */
-  uint32_t Clcw::create(const uint8_t u8_StatusField, const uint8_t u8_VirtualChannelID,
-                        const bool b_NoRfAvail, const bool b_NoBitLock, const bool b_LockOut, const bool b_Wait, const bool b_Retransmit,
-                        const uint8_t u8_FarmBCounter, const uint8_t u8_ReportValue)
+  uint32_t Clcw::create(uint8_t u8_StatusField, uint8_t u8_VirtualChannelID,
+                        bool b_NoRfAvail, bool b_NoBitLock, bool b_LockOut, bool b_Wait, bool b_Retransmit,
+                        uint8_t u8_FarmBCounter, uint8_t u8_ReportValue)
   {
     uint32_t u32_CLCW = 0;
     
-    u32_CLCW = ((uint32_t)(ClcwVersionNumber&0x3)<<29)
-      | ((uint32_t)(u8_StatusField&0x7)<<26)
-      | ((uint32_t)(COPinEffect&0x3)<<24)
-      | ((uint32_t)(u8_VirtualChannelID&0x3f)<<18)
-      | ((uint32_t)(b_NoRfAvail?1:0)<<15) | ((uint32_t)(b_NoBitLock?1:0)<<14) | ((uint32_t)(b_LockOut?1:0)<<13) | ((uint32_t)(b_Wait?1:0)<<12) | ((uint32_t)(b_Retransmit?1:0)<<11)
-      | ((uint32_t)(u8_FarmBCounter&0x3)<<9) | (uint32_t)(u8_ReportValue);
+    u32_CLCW = (static_cast<uint32_t>(ClcwVersionNumber&0x3)<<29)
+      | (static_cast<uint32_t>(u8_StatusField&0x7)<<26)
+      | (static_cast<uint32_t>(COPinEffect&0x3)<<24)
+      | (static_cast<uint32_t>(u8_VirtualChannelID&0x3f)<<18)
+      | (static_cast<uint32_t>(b_NoRfAvail?1:0)<<15) | (static_cast<uint32_t>(b_NoBitLock?1:0)<<14) | (static_cast<uint32_t>(b_LockOut?1:0)<<13) | (static_cast<uint32_t>(b_Wait?1:0)<<12) | (static_cast<uint32_t>(b_Retransmit?1:0)<<11)
+      | (static_cast<uint32_t>(u8_FarmBCounter&0x3)<<9) | static_cast<uint32_t>(u8_ReportValue);
     
     return u32_CLCW;
   }
@@ -50,7 +50,7 @@ namespace CCSDS
 
   
   /**
-   * @brief Extractes a Communications Link Control Word (CLCW) as described in CCSDS 232.0-B-3.
+   * @brief Extracts a Communications Link Control Word (CLCW) as described in CCSDS 232.0-B-3.
    *
    * @param pu8_StatusField       Pointer to an uint8_t where the mission-specific Status Field shall be stored.
    * @param pu8_VirtualChannelID  Pointer to an uint8_t where the Virtual Channel Identifier shall be stored.
@@ -68,20 +68,20 @@ namespace CCSDS
    */
   int32_t Clcw::extract(uint8_t *pu8_StatusField, uint8_t *pu8_VirtualChannelID,
                         bool *pb_NoRfAvail, bool *pb_NoBitLock, bool *pb_LockOut, bool *pb_Wait, bool *pb_Retransmit,
-                        uint8_t *pu8_FarmBCounter, uint8_t *pu8_ReportValue, const uint32_t u32_CLCW)
+                        uint8_t *pu8_FarmBCounter, uint8_t *pu8_ReportValue, uint32_t u32_CLCW)
   {
     uint8_t u8_ClcwVersionNumber;
 
     // version number check
-    u8_ClcwVersionNumber=(uint8_t)((u32_CLCW>>29)&0x3);
+    u8_ClcwVersionNumber=static_cast<uint8_t>((u32_CLCW>>29)&0x3);
     if(u8_ClcwVersionNumber!=ClcwVersionNumber)
       return -1;    
     
     if(pu8_StatusField)
-      *pu8_StatusField=(uint8_t)((u32_CLCW>>26)&0x7);
+      *pu8_StatusField=static_cast<uint8_t>((u32_CLCW>>26)&0x7);
     // COPinEffect not used
     if(pu8_VirtualChannelID)
-      *pu8_VirtualChannelID=(uint8_t)((u32_CLCW>>18)&0x3f);
+      *pu8_VirtualChannelID=static_cast<uint8_t>((u32_CLCW>>18)&0x3f);
     
     if(pb_NoRfAvail)
       *pb_NoRfAvail=((u32_CLCW>>15)&0x1)?true:false;
@@ -95,9 +95,9 @@ namespace CCSDS
       *pb_Retransmit=((u32_CLCW>>11)&0x1)?true:false;
     
     if(pu8_FarmBCounter)
-      *pu8_FarmBCounter=(uint8_t)((u32_CLCW>>9)&0x3);
+      *pu8_FarmBCounter=static_cast<uint8_t>((u32_CLCW>>9)&0x3);
     if(pu8_ReportValue)
-      *pu8_ReportValue=(uint8_t)(u32_CLCW&0xff);
+      *pu8_ReportValue=static_cast<uint8_t>(u32_CLCW&0xff);
     
     return 0;
   }

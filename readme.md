@@ -66,6 +66,43 @@ A command is identified by service and subservice numbers. Some services are pre
 TODO
 
 
+## Configuration
+
+All compile-time settings are defined in `configCCSDS.h` and can be overridden at compile time without modifying the library. Pass the flag via the compiler command line (e.g. with `-D`) or — in PlatformIO — via `build_flags` in `platformio.ini`.
+
+### Available Build Flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `CCSDS_SP_MAX_DATA_SIZE` | `496` | Maximum size of the Space Packet data field in bytes (up to 65535 per standard) |
+| `CCSDS_TC_TF_MAX_SIZE` | `508` | Maximum TC Transfer Frame size in bytes (without sync; max 1024 per CCSDS 232.0-B-3) |
+| `CCSDS_TM_TF_TOTAL_SIZE` | `508` | Fixed TM Transfer Frame size in bytes (without sync) |
+| `CCSDS_TF_USE_OCF` | `1` | Include Operational Control Field (OCF / CLCW) in TM frames (`0` to disable) |
+| `CCSDS_TF_USE_FECF` | `1` | Include Frame Error Control Field (CRC) in Transfer Frames (`0` to disable) |
+| `CCSDS_TF_TC_USE_SEG_HDR` | `1` | Include Segment Header (MAP ID) in TC Transfer Frames (`0` to disable) |
+
+### Example: PlatformIO
+
+```ini
+[env:myboard]
+build_flags =
+    -DCCSDS_TM_TF_TOTAL_SIZE=1024
+    -DCCSDS_TC_TF_MAX_SIZE=256
+    -DCCSDS_TF_USE_OCF=0
+```
+
+### Example: Arduino UNO (memory-constrained)
+
+For platforms with very limited RAM, replace `configCCSDS.h` with the provided `configCCSDS.Arduino.h` or pass reduced values directly:
+
+```ini
+build_flags =
+    -DCCSDS_SP_MAX_DATA_SIZE=32
+    -DCCSDS_TC_TF_MAX_SIZE=44
+    -DCCSDS_TM_TF_TOTAL_SIZE=44
+```
+
+
 ## Usage
 
 TODO

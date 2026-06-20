@@ -5,7 +5,7 @@
  *
  * @author    Stefan Trippler
  *
- * @copyright Copyright (C) 2021-2023 Stefan Trippler.  All rights reserved.
+ * @copyright Copyright (C) 2021-2026 Stefan Trippler.  All rights reserved.
  */
 
 #ifndef _CCSDS_TRANSFERFRAME_TM_H_
@@ -28,18 +28,6 @@
 #include <inttypes.h>
 
 #include "configCCSDS.h"
-
-#ifdef configTM_TF_TOTAL_SIZE  
-#define TM_TF_TOTAL_SIZE configTM_TF_TOTAL_SIZE
-#else 
-#define TM_TF_TOTAL_SIZE 508
-#endif
-
-#ifdef configTF_USE_OCF
-#define TF_USE_OCF configTF_USE_OCF
-#else
-#define TF_USE_OCF 1
-#endif
 
 
 #include "ccsds_transferframe.h"
@@ -72,11 +60,11 @@ namespace CCSDS
      * @param u32_OCF             The Operational Control Field (OCF), which is part of the flow control
      *                            mechanism for uplink data (can hold the Communications Link Control Word (CLCW))
      */
-    virtual void onTransferframeTmReceived(const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                               const uint8_t u8_MasterChannelFrameCount, const uint8_t u8_VirtualChannelFrameCount,
-                               const bool b_TFSecHdrFlag, const uint16_t u16_FirstHdrPtr,
-                               const uint8_t *pu8_Data, const uint16_t u16_DataSize,
-                               const uint32_t u32_OCF) = 0;
+    virtual void onTransferframeTmReceived(uint16_t u16_SpacecraftID, uint8_t u8_VirtualChannelID,
+                   uint8_t u8_MasterChannelFrameCount, uint8_t u8_VirtualChannelFrameCount,
+                   bool b_TFSecHdrFlag, uint16_t u16_FirstHdrPtr,
+                   const uint8_t *pu8_Data, uint16_t u16_DataSize,
+                   uint32_t u32_OCF) = 0;
   };
 
 
@@ -116,12 +104,12 @@ namespace CCSDS
     const static int TmTfVersionNumber = 0;
     const static uint8_t PrimaryHdrSize = 6;
     const static uint8_t OcfSize = 4;
-    const static uint16_t TfSize = TM_TF_TOTAL_SIZE;
+    const static uint16_t TfSize = CCSDS_TM_TF_TOTAL_SIZE;
     const static uint16_t FirstHeaderPtrOnlyIdleData = 0x7FE;
     const static uint16_t FirstHeaderPtrNoDataStart = 0x7FF;
-    uint8_t mau8_Buffer[TM_TF_TOTAL_SIZE];
+    uint8_t mau8_Buffer[CCSDS_TM_TF_TOTAL_SIZE];
     
-    const static bool UseOCF = (TF_USE_OCF)?true:false;  // Operational Control Field (CLCW)
+    const static bool UseOCF = CCSDS_TF_USE_OCF != 0;  // Operational Control Field (CLCW)
     
     TransferframeTmActionInterface *mp_ActionInterface;
     
@@ -132,24 +120,24 @@ namespace CCSDS
     
     
     // TM generation
-    static uint32_t create(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                           const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                           const uint8_t u8_MasterChannelFrameCount, const uint8_t u8_VirtualChannelFrameCount,
-                           const uint16_t u16_FirstHdrPtr,
-                           const uint8_t *pu8_Data, const uint16_t u16_DataSize,
-                           const uint32_t u32_OCF = 0);
+    static uint32_t create(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                 uint16_t u16_SpacecraftID, uint8_t u8_VirtualChannelID,
+                 uint8_t u8_MasterChannelFrameCount, uint8_t u8_VirtualChannelFrameCount,
+                 uint16_t u16_FirstHdrPtr,
+                 const uint8_t *pu8_Data, uint16_t u16_DataSize,
+                 uint32_t u32_OCF = 0);
     
-    static uint32_t createIdle(uint8_t *pu8_Buffer, const uint32_t u32_BufferSize,
-                               const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID,
-                               const uint8_t u8_MasterChannelFrameCount, const uint8_t u8_VirtualChannelFrameCount,
-                               const uint32_t u32_OCF = 0);
+    static uint32_t createIdle(uint8_t *pu8_Buffer, uint32_t u32_BufferSize,
+                   uint16_t u16_SpacecraftID, uint8_t u8_VirtualChannelID,
+                   uint8_t u8_MasterChannelFrameCount, uint8_t u8_VirtualChannelFrameCount,
+                   uint32_t u32_OCF = 0);
     
   private:
     static int32_t _createPrimaryHeader(uint8_t *pu8_Buffer,
-                                        const uint16_t u16_SpacecraftID, const uint8_t u8_VirtualChannelID, const bool b_OcfFlag,
-                                        const uint8_t u8_MasterChannelFrameCount, const uint8_t u8_VirtualChannelFrameCount,
-                                        const bool b_TFSecHdrFlag, const bool b_SyncFlag, const bool b_PacketOrderFlag,
-                                        const uint8_t u8_SegLengthID, const uint16_t u16_FirstHdrPtr);
+                      uint16_t u16_SpacecraftID, uint8_t u8_VirtualChannelID, bool b_OcfFlag,
+                      uint8_t u8_MasterChannelFrameCount, uint8_t u8_VirtualChannelFrameCount,
+                      bool b_TFSecHdrFlag, bool b_SyncFlag, bool b_PacketOrderFlag,
+                      uint8_t u8_SegLengthID, uint16_t u16_FirstHdrPtr);
     
   private:
     void _processFrame(void) override;
